@@ -18,6 +18,8 @@
   (file BLK-MD-SPK-B_AT_Command_set_original.pdf is marked in header as -B but description is mentioning -A version of module, maybe
   this is why some commands did not work)
 
+  PSKey confguration implemented: used to change name,pin,UART baudrate (this one is problematic currently, works with original soft in one from milion tryes....)
+
 */
 
 #ifndef OVC3860_h
