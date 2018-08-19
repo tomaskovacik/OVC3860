@@ -39,55 +39,55 @@ void loop() {
       switch (c)
       {
         case '1':
-          BT.PairingInit();
+          BT.pairingInit();
           break;
         case '2':
-          BT.PairingExit();
+          BT.pairingExit();
           break;
         case '3':
-          BT.ConnectHSHF();
+          BT.connectHSHF();
           break;
         case '4':
-          BT.DisconnectHSHF();
+          BT.disconnectHSHF();
           break;
         case '5':
-          BT.CallAnswer();
+          BT.callAnswer();
           break;
         case '6':
-          BT.CallReject();
+          BT.callReject();
           break;
         case '7':
-          BT.CallHangUp();
+          BT.callHangUp();
           break;
         case '8':
-          BT.CallRedial();
+          BT.callRedial();
           break;
         case '9':
-          BT.VoiceDialStart();
+          BT.voiceDialStart();
           break;
         case '0':
-          BT.VoiceDialEnd();
+          BT.voiceDialEnd();
           break;
         case 'a':
-          BT.MicToggle();
+          BT.micToggle();
           break;
         case 'b':
-          BT.TransferAudio();
+          BT.transferAudio();
           break;
         case 'c':
-          BT.CallReleaseReject();
+          BT.callReleaseReject();
           break;
         case 'd':
-          BT.CallReleaseAccept();
+          BT.callReleaseAccept();
           break;
         case 'e':
-          BT.CallHoldAccept();
+          BT.callHoldAccept();
           break;
         case 'f':
-          BT.CallConference();
+          BT.callConference();
           break;
         case 'g':
-          BT.PairingDeleteThenInit();
+          BT.pairingDeleteThenInit();
           break;
         case 'h': //help
           Serial.println(F("Pairing Init                 1"));
@@ -169,46 +169,46 @@ void loop() {
               c = Serial.read();
               str += c;
             }
-            BT.CallDialNumber(str);
+            BT.callDialNumber(str);
           }
           break;
         case 'j':
-          BT.SendDTMF();
+          BT.sendDTMF();
           break;
         case 'k':
-          BT.QueryHFPStatus();
+          BT.queryHFPStatus();
           break;
         case 'l':
-          BT.ResetModule();
+          BT.resetModule();
           break;
         case 'm':
-          BT.MusicTogglePlayPause();
+          BT.musicTogglePlayPause();
           break;
         case 'n':
-          BT.MusicStop();
+          BT.musicStop();
           break;
         case 'o':
-          BT.MusicNextTrack();
+          BT.musicNextTrack();
           break;
         case 'p':
-          BT.MusicPreviousTrack();
+          BT.musicPreviousTrack();
           break;
         case 'q':
-          BT.QueryConfiguration();
+          BT.queryConfiguration();
           break;
         case 'r':
-          BT.AutoconnEnable();
-          BT.QueryConfiguration();
+          BT.autoconnEnable();
+          BT.queryConfiguration();
           break;
         case 's':
-          BT.AutoconnDisable();
-          BT.QueryConfiguration();
+          BT.autoconnDisable();
+          BT.queryConfiguration();
           break;
         case 't':
-          BT.AvSourceConnect();
+          BT.avSourceConnect();
           break;
         case 'u':
-          BT.AvSourceDisconnect();
+          BT.avSourceDisconnect();
           break;
         case 'v':
           {
@@ -219,7 +219,7 @@ void loop() {
               c = Serial.read();
               str += c;
             }
-            BT.ChangeLocalName(str);
+            BT.changeLocalName(str);
           }
           break;
         case 'w':
@@ -231,31 +231,31 @@ void loop() {
               c = Serial.read();
               str += c;
             }
-            BT.ChangePin(str);
+            BT.changePin(str);
           }
           break;
         case 'x':
-          BT.QueryAvrcpStatus();
+          BT.queryAvrcpStatus();
           break;
         case 'y':
-          BT.AutoAnswerEnable();
-          BT.QueryConfiguration();
+          BT.autoAnswerEnable();
+          BT.queryConfiguration();
           break;
         case 'z':
-          BT.AutoAnswerDisable();
-          BT.QueryConfiguration();
+          BT.autoAnswerDisable();
+          BT.queryConfiguration();
           break;
         case 'A':
-          BT.MusicStartFF();
+          BT.musicStartFF();
           break;
         case 'B':
-          BT.MusicStartRWD();
+          BT.musicStartRWD();
           break;
         case 'C':
-          BT.MusicStopFFRWD();
+          BT.musicStopFFRWD();
           break;
         case 'D':
-          BT.QueryA2DPStatus();
+          BT.queryA2DPStatus();
           break;
         case 'E':
           {
@@ -266,7 +266,7 @@ void loop() {
               c = Serial.read();
               str += c;
             }
-            BT.WriteToMemory(str);
+            BT.writeToMemory(str);
           }
           break;
         case 'F':
@@ -278,89 +278,89 @@ void loop() {
               c = Serial.read();
               str += c;
             }
-            BT.ReadToMemory(str);
+            BT.readToMemory(str);
           }
           break;
         case 'G':
-          BT.SwitchDevices();
+          BT.switchDevices();
           break;
         case 'H':
-          BT.QueryVersion();
+          BT.queryVersion();
           break;
         case 'I':
-          BT.PbSyncBySim();
+          BT.pbSyncBySim();
           break;
         case 'J':
-          BT.PbSyncByPhone();
+          BT.pbSyncByPhone();
           break;
         case 'K':
-          BT.PbReadNextItem();
+          BT.pbReadNextItem();
           break;
         case 'L':
-          BT.PbReadPreviousItem();
+          BT.pbReadPreviousItem();
           break;
         case 'M':
-          BT.PbSyncByDialer();
+          BT.pbSyncByDialer();
           break;
         case 'N':
-          BT.PbSyncByReceiver();
+          BT.pbSyncByReceiver();
           break;
         case 'O':
-          BT.PbSyncByMissed();
+          BT.pbSyncByMissed();
           break;
         case 'P':
-          BT.PbSyncByLastCall();
+          BT.pbSyncByLastCall();
           break;
         case 'Q':
-          BT.GetLocalLastDialedList();
+          BT.getLocalLastDialedList();
           break;
         case 'R':
-          BT.GetLocalLastReceivedList();
+          BT.getLocalLastReceivedList();
           break;
         case 'S':
-          BT.GetLocalLastMissedList();
+          BT.getLocalLastMissedList();
           break;
         case 'T':
-          BT.DialLastReceivedCall();
+          BT.dialLastReceivedCall();
           break;
         case 'U':
-          BT.ClearLocalCallHistory();
+          BT.clearLocalCallHistory();
           break;
         case 'V':
-          BT.SppDataTransmit();
+          BT.sppDataTransmit();
           break;
         case 'W':
-          BT.SetClockdebugMode();
+          BT.setClockdebugMode();
           break;
         case 'X':
-          BT.VolumeDown();
+          BT.volumeDown();
           break;
         case 'Y':
-          BT.EnterTestMode();
+          BT.enterTestMode();
           break;
         case 'Z':
-          BT.SetFixedFrequency();
+          BT.setFixedFrequency();
           break;
         case '=':
-          BT.EmcTestMode();
+          BT.emcTestMode();
           break;
         case '-':
-          BT.SetRFRegister();
+          BT.setRFRegister();
           break;
         case ']':
-          BT.InquiryStart();
+          BT.inquiryStart();
           break;
         case '[':
-          BT.InquiryStop();
+          BT.inquiryStop();
           break;
         case ';':
-          BT.VolumeUp();
+          BT.volumeUp();
           break;
         case '\'':
-          BT.Shutdown();
+          BT.shutdown();
           break;
         case '.':
-          BT.EnterConfigMode();
+          BT.enterConfigMode();
           break;
       }
     }
@@ -393,7 +393,7 @@ void loop() {
           Serial.println(F("       use BB for 921600b"));
           break;
         case 'n':
-          BT.ReadName();
+          BT.readName();
           break;
         case 'N':
           {
@@ -404,14 +404,14 @@ void loop() {
               c = Serial.read();
               str += c;
             }
-            BT.WriteName(str);
+            BT.writeName(str);
           }
           break;
         case 'A':
-          BT.ReadAllPSK();
+          BT.readAllPSK();
           break;
         case 'p':
-          BT.ReadPin();
+          BT.readPin();
           break;
         case 'P':
           {
@@ -422,54 +422,54 @@ void loop() {
               c = Serial.read();
               str += c;
             }
-            BT.WritePin(str);
+            BT.writePin(str);
           }
           break;
         case 'q':
-          BT.QuitConfigMode();
+          BT.quitConfigMode();
           break;
         case 'b':
-          BT.ReadBaudRate();
+          BT.readBaudRate();
         break;
         case 'B':
         {
           delay(100);
         switch (Serial.read()){
           case OVC3860_BAUDRATE_1200:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_1200);
+            BT.writeBaudRate(OVC3860_BAUDRATE_1200);
           break;
           case OVC3860_BAUDRATE_2400:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_2400);
+            BT.writeBaudRate(OVC3860_BAUDRATE_2400);
           break;
           case OVC3860_BAUDRATE_4800:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_4800);
+            BT.writeBaudRate(OVC3860_BAUDRATE_4800);
           break;
           case OVC3860_BAUDRATE_9600:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_9600);
+            BT.writeBaudRate(OVC3860_BAUDRATE_9600);
           break;
           case OVC3860_BAUDRATE_14400:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_14400);
+            BT.writeBaudRate(OVC3860_BAUDRATE_14400);
           break;
           case OVC3860_BAUDRATE_19200:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_19200);
+            BT.writeBaudRate(OVC3860_BAUDRATE_19200);
           break;
           case OVC3860_BAUDRATE_38400:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_38400);
+            BT.writeBaudRate(OVC3860_BAUDRATE_38400);
           break;
           case OVC3860_BAUDRATE_57600:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_57600);
+            BT.writeBaudRate(OVC3860_BAUDRATE_57600);
           break;
           case OVC3860_BAUDRATE_115200:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_115200);
+            BT.writeBaudRate(OVC3860_BAUDRATE_115200);
           break;
           case OVC3860_BAUDRATE_230400:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_230400);
+            BT.writeBaudRate(OVC3860_BAUDRATE_230400);
           break;
           case OVC3860_BAUDRATE_460800:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_460800);
+            BT.writeBaudRate(OVC3860_BAUDRATE_460800);
           break;
           case OVC3860_BAUDRATE_921600:
-            BT.WriteBaudRate(OVC3860_BAUDRATE_921600);
+            BT.writeBaudRate(OVC3860_BAUDRATE_921600);
           break;
         }
         }

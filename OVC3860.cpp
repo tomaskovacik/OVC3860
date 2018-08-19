@@ -61,7 +61,7 @@ void OVC3860::resetHigh() {
   digitalWrite(_reset, HIGH);
 }
 
-void OVC3860::ResetModule() {
+void OVC3860::resetModule() {
   DBG("reseting module\n");
   resetLow();
   delay(100);
@@ -115,29 +115,6 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
         }
       }
       break;
-    case 'C':
-      {
-        //        PowerState = On;
-        //        switch (receivedString[1]) {
-        //          case '1':
-        //            BTState = Connected;
-        //            break;
-        //          case '0':
-        //            BTState = Disconnected;
-        //            break;
-        //        }
-      }
-      break;
-    case 'E':
-      {
-        //        PowerState = On;
-        //        switch (receivedString[1]) {
-        //          case 'R':
-        //            if (receivedString[2] == 'R') return 0;
-        //            break;
-        //        }
-      }
-      break;
     case 'I':// connection info
       {
         PowerState = On;
@@ -164,11 +141,6 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
         }
       }
       break;
-    /*
-      from datasheet:
-
-
-    */
     case 'M':
       {
         PowerState = On;
@@ -284,14 +256,6 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
         }
       }
       break;
-    case 'N':
-      {
-        //        PowerState = On;
-        //        if (receivedString[1] == 'A' && receivedString[2] == ': ') {//name
-        //          // BT_NAME = OVC3860::returnBtModuleName(receivedString);
-        //        }
-      }
-      break;
     case 'P':
       {
         PowerState = On;
@@ -310,19 +274,6 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
           case 'C':
             break;
         }
-      }
-      break;
-    case 'O': //BT On
-      {
-        //        switch (receivedString[1]) {
-        //          case 'N':
-        //            PowerState = On;
-        //            break;
-        //          case 'K':
-        //            if (PowerState == ShutdownInProgress) PowerState = Off;
-        //            return 1;
-        //            break;
-        //        }
       }
       break;
     case 0xA: //\r
@@ -350,7 +301,6 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
 }
 
 uint8_t OVC3860::sendRawData(uint8_t _size, uint8_t _data[]) {
-
   for (uint8_t i = 0; i < _size; i++ ) {
     btSerial -> write(_data[i]);
   }
@@ -360,10 +310,9 @@ uint8_t OVC3860::sendRawData(uint8_t _size, uint8_t _data[]) {
     DBG(String(_data[i], HEX));
   }
   DBG("\n");
-
 }
 
-uint8_t OVC3860::QuitConfigMode() { //responce: 0x60,0x00,0x00,0x00
+uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -375,11 +324,11 @@ uint8_t OVC3860::QuitConfigMode() { //responce: 0x60,0x00,0x00,0x00
   BTState = Disconnected;
 }
 
-uint8_t OVC3860::EnterConfigMode() {
+uint8_t OVC3860::enterConfigMode() {
 
   uint8_t initConfigData[9] = {0xC5, 0xC7, 0xC7, 0xC9, 0xD0, 0xD7, 0xC9, 0xD1, 0xCD};
 
-  OVC3860::ResetModule();
+  OVC3860::resetModule();
 
   while (!btSerial -> available()) {}
 
@@ -404,7 +353,7 @@ uint8_t OVC3860::EnterConfigMode() {
   }
 }
 
-uint8_t OVC3860::ReadName() {
+uint8_t OVC3860::readName() {
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -415,7 +364,7 @@ uint8_t OVC3860::ReadName() {
   OVC3860::getNextEventFromBT();
 }
 
-uint8_t OVC3860::WriteName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
+uint8_t OVC3860::writeName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -434,19 +383,18 @@ uint8_t OVC3860::WriteName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
   OVC3860::getNextEventFromBT();
 }
 
-uint8_t OVC3860::ReadAllPSK() {
+uint8_t OVC3860::readAllPSK() {
   if (BTState != ConfigMode) {
     return false;
   } else {
     DBG("Reading All PSK\n");
     uint8_t Data[4] = {0x10, 0x00, 0x03, 0x3D};
-    //uint8_t Data[4] = {0x10, 0x00, 0x00, 0x00};
     sendRawData(4, Data);
   }
   OVC3860::getNextEventFromBT();
 }
 
-uint8_t OVC3860::ReadPin() {
+uint8_t OVC3860::readPin() {
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -457,7 +405,7 @@ uint8_t OVC3860::ReadPin() {
   OVC3860::getNextEventFromBT();
 }
 
-uint8_t OVC3860::WritePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
+uint8_t OVC3860::writePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -476,7 +424,7 @@ uint8_t OVC3860::WritePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
   OVC3860::getNextEventFromBT();
 }
 
-uint8_t OVC3860::ReadBaudRate() {
+uint8_t OVC3860::readBaudRate() {
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -487,7 +435,7 @@ uint8_t OVC3860::ReadBaudRate() {
   OVC3860::getNextEventFromBT();
 }
 
-uint8_t OVC3860::WriteBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00,0x10
+uint8_t OVC3860::writeBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00,0x10
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -498,11 +446,6 @@ uint8_t OVC3860::WriteBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00
   OVC3860::getNextEventFromBT();
 }
 
-/*String OVC3860::returnCallerID(String receivedString) {
-  DBG("Calling: " + receivedString.substring(4,(receivedString.length() - 2)) + "\n");
-  return receivedString.substring(4,(receivedString.length() - 2)); //start at 4 cose: IR-"+123456789" or PR-"+123456789" and one before end to remove " and \0
-  }
-*/
 String OVC3860::returnBtModuleName(String receivedString) {
   DBG("Bluetooth module name: " + receivedString.substring(4) + "\n");
   return receivedString.substring(4);
@@ -631,20 +574,6 @@ uint8_t OVC3860::sendData(String cmd) {
 }
 
 /*
-  uint8_t OVC3860::sendAPTData(String cmd) {
-  String Command = "APT+" + cmd + "\r\n";
-  DBG("sending APT " + Command);
-  delay(100);
-  #if defined(USE_SW_SERIAL)
-  if (btSerial)
-  btSerial -> print(Command);
-  else
-  #endif
-  btSerial -> print(Command);
-  }
-*/
-
-/*
   Pairing
   Set pairing, waiting for the remote device to connect, the command format is:
   AT#CA // discoverable for 2 minutes
@@ -676,7 +605,7 @@ uint8_t OVC3860::sendData(String cmd) {
 
   Syntax: AT#CA
 */
-uint8_t OVC3860::PairingInit() {
+uint8_t OVC3860::pairingInit() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PAIRING_INIT);
   OVC3860::getNextEventFromBT();
@@ -707,7 +636,7 @@ uint8_t OVC3860::PairingInit() {
 
   Syntax: AT#CB
 */
-uint8_t OVC3860::PairingExit() {
+uint8_t OVC3860::pairingExit() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PAIRING_EXIT);
   OVC3860::getNextEventFromBT();
@@ -743,7 +672,7 @@ uint8_t OVC3860::PairingExit() {
 
   Syntax: AT#CC
 */
-uint8_t OVC3860::ConnectHSHF() {
+uint8_t OVC3860::connectHSHF() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CONNECT_HSHF);
   OVC3860::getNextEventFromBT();
@@ -774,7 +703,7 @@ uint8_t OVC3860::ConnectHSHF() {
 
   Syntax: AT#CD
 */
-uint8_t OVC3860::DisconnectHSHF() {
+uint8_t OVC3860::disconnectHSHF() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_DISCONNECT_HSHF);
   OVC3860::getNextEventFromBT();
@@ -806,7 +735,7 @@ uint8_t OVC3860::DisconnectHSHF() {
 
   Syntax: AT#CF
 */
-uint8_t OVC3860::CallReject() {
+uint8_t OVC3860::callReject() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CALL_REJECT);
   OVC3860::getNextEventFromBT();
@@ -837,7 +766,7 @@ uint8_t OVC3860::CallReject() {
 
   Syntax: AT#CE
 */
-uint8_t OVC3860::CallAnswer() {
+uint8_t OVC3860::callAnswer() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CALL_ANSWARE);
   OVC3860::getNextEventFromBT();
@@ -859,7 +788,7 @@ uint8_t OVC3860::CallAnswer() {
   indicate the command success or failure.
   Syntax: AT#CG
 */
-uint8_t OVC3860::CallHangUp() {
+uint8_t OVC3860::callHangUp() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CALL_HANGUP);
   OVC3860::getNextEventFromBT();
@@ -888,7 +817,7 @@ uint8_t OVC3860::CallHangUp() {
 
   Syntax: AT#CH
 */
-uint8_t OVC3860::CallRedial() {
+uint8_t OVC3860::callRedial() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CALL_REDIAL);
   OVC3860::getNextEventFromBT();
@@ -922,7 +851,7 @@ uint8_t OVC3860::CallRedial() {
 
   Syntax: AT#CI
 */
-uint8_t OVC3860::VoiceDialStart() {
+uint8_t OVC3860::voiceDialStart() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_VOICE_CALL_START);
   OVC3860::getNextEventFromBT();
@@ -950,7 +879,7 @@ uint8_t OVC3860::VoiceDialStart() {
 
   Syntax: AT#CJ
 */
-uint8_t OVC3860::VoiceDialEnd() {
+uint8_t OVC3860::voiceDialEnd() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_VOICE_CALL_CANCEL);
   OVC3860::getNextEventFromBT();
@@ -974,7 +903,7 @@ uint8_t OVC3860::VoiceDialEnd() {
 
   Syntax: AT#CM
 */
-uint8_t OVC3860::MicToggle() {
+uint8_t OVC3860::micToggle() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_MIC_TOGGLE);
   OVC3860::getNextEventFromBT();
@@ -1010,7 +939,7 @@ uint8_t OVC3860::MicToggle() {
 
   Syntax: AT#CO
 */
-uint8_t OVC3860::TransferAudio() {
+uint8_t OVC3860::transferAudio() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_TRANSFER_AUDIO_TO_SPEAKER);
   OVC3860::getNextEventFromBT();
@@ -1033,7 +962,7 @@ uint8_t OVC3860::TransferAudio() {
 
   Syntax: AT#CQ
 */
-uint8_t OVC3860::CallReleaseReject() {
+uint8_t OVC3860::callReleaseReject() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_RELEASE_REJECT_CALL);
   OVC3860::getNextEventFromBT();
@@ -1057,7 +986,7 @@ uint8_t OVC3860::CallReleaseReject() {
 
   Syntax: AT#CR
 */
-uint8_t OVC3860::CallReleaseAccept() {
+uint8_t OVC3860::callReleaseAccept() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_RELEASE_ACCEPT_CALL);
   OVC3860::getNextEventFromBT();
@@ -1081,7 +1010,7 @@ uint8_t OVC3860::CallReleaseAccept() {
 
   Syntax: AT#CS
 */
-uint8_t OVC3860::CallHoldAccept() {
+uint8_t OVC3860::callHoldAccept() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_HOLD_ACCEPT_CALL);
   OVC3860::getNextEventFromBT();
@@ -1105,7 +1034,7 @@ uint8_t OVC3860::CallHoldAccept() {
 
   Syntax: AT#CT
 */
-uint8_t OVC3860::CallConference() {
+uint8_t OVC3860::callConference() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CONFERENCE_CALL);
   OVC3860::getNextEventFromBT();
@@ -1126,7 +1055,7 @@ uint8_t OVC3860::CallConference() {
   OK
   OK
 */
-uint8_t OVC3860::PairingDeleteThenInit() {
+uint8_t OVC3860::pairingDeleteThenInit() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PAIRING_DELETE_THEN_INIT);
   OVC3860::getNextEventFromBT();
@@ -1163,7 +1092,7 @@ uint8_t OVC3860::PairingDeleteThenInit() {
 
   Syntax: AT#CW13800138000
 */
-uint8_t OVC3860::CallDialNumber(String number) {
+uint8_t OVC3860::callDialNumber(String number) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CALL_DIAL_NUMBER + number);
   OVC3860::getNextEventFromBT();
@@ -1196,7 +1125,7 @@ uint8_t OVC3860::CallDialNumber(String number) {
   AT#CX5
 
 */
-uint8_t OVC3860::SendDTMF() {
+uint8_t OVC3860::sendDTMF() {
   OVC3860::sendData(OVC3860_SEND_DTMF);
   OVC3860::getNextEventFromBT();
 }
@@ -1230,7 +1159,7 @@ uint8_t OVC3860::SendDTMF() {
 
   Syntax: AT#CY
 */
-uint8_t OVC3860::QueryHFPStatus() {
+uint8_t OVC3860::queryHFPStatus() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_QUERY_HFP_STATUS);
   OVC3860::getNextEventFromBT();
@@ -1257,7 +1186,7 @@ uint8_t OVC3860::QueryHFPStatus() {
 
   Syntax: AT#CZ
 */
-uint8_t OVC3860::Reset() {
+uint8_t OVC3860::reset() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_RESET);
   OVC3860::getNextEventFromBT();
@@ -1285,7 +1214,7 @@ uint8_t OVC3860::Reset() {
 
   Syntax: AT#MA
 */
-uint8_t OVC3860::MusicTogglePlayPause() {
+uint8_t OVC3860::musicTogglePlayPause() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_MUSIC_TOGGLE_PLAY_PAUSE);
   OVC3860::getNextEventFromBT();
@@ -1309,7 +1238,7 @@ uint8_t OVC3860::MusicTogglePlayPause() {
 
   Syntax: AT#MC
 */
-uint8_t OVC3860::MusicStop() {
+uint8_t OVC3860::musicStop() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_MUSIC_STOP);
   OVC3860::getNextEventFromBT();
@@ -1333,7 +1262,7 @@ uint8_t OVC3860::MusicStop() {
 
   Syntax: AT#MD
 */
-uint8_t OVC3860::MusicNextTrack() {
+uint8_t OVC3860::musicNextTrack() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_MUSIC_NEXT_TRACK);
   OVC3860::getNextEventFromBT();
@@ -1357,7 +1286,7 @@ uint8_t OVC3860::MusicNextTrack() {
 
   Syntax: AT#ME
 */
-uint8_t OVC3860::MusicPreviousTrack() {
+uint8_t OVC3860::musicPreviousTrack() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_MUSIC_PREVIOUS_TRACK);
   OVC3860::getNextEventFromBT();
@@ -1385,7 +1314,7 @@ uint8_t OVC3860::MusicPreviousTrack() {
   < a >: auto answer configuration, where 0: disable, 1: enabled
   < b >: poweron auto configuration, where 0: disable, 1: enabled
 */
-uint8_t OVC3860::QueryConfiguration() {
+uint8_t OVC3860::queryConfiguration() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_QUERY_CONFIGURATION);
   OVC3860::getNextEventFromBT();
@@ -1409,7 +1338,7 @@ uint8_t OVC3860::QueryConfiguration() {
 
   Syntax: AT#MG
 */
-uint8_t OVC3860::AutoconnEnable() {
+uint8_t OVC3860::autoconnEnable() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_AUTOCONN_ENABLE);
   OVC3860::getNextEventFromBT();
@@ -1432,7 +1361,7 @@ uint8_t OVC3860::AutoconnEnable() {
 
   Syntax: AT#MH
 */
-uint8_t OVC3860::AutoconnDisable() {
+uint8_t OVC3860::autoconnDisable() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_AUTOCONN_DISABLE);
   OVC3860::getNextEventFromBT();
@@ -1460,7 +1389,7 @@ uint8_t OVC3860::AutoconnDisable() {
 
   Syntax: AT#MI
 */
-uint8_t OVC3860::AvSourceConnect() {
+uint8_t OVC3860::avSourceConnect() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_AV_SOURCE_CONNECT);
   OVC3860::getNextEventFromBT();
@@ -1484,7 +1413,7 @@ uint8_t OVC3860::AvSourceConnect() {
 
   Syntax: AT#MJ
 */
-uint8_t OVC3860::AvSourceDisconnect() {
+uint8_t OVC3860::avSourceDisconnect() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_AV_SOURCE_DISCONNECT);
   OVC3860::getNextEventFromBT();
@@ -1518,7 +1447,7 @@ uint8_t OVC3860::AvSourceDisconnect() {
   AT#MMMy Car Kit\r\n :the new name is “My Car Kit”
   AT#MM\r\n :indication will be MM<current name>
 */
-uint8_t OVC3860::ChangeLocalName(String name) {
+uint8_t OVC3860::changeLocalName(String name) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CHANGE_LOCAL_NAME + name);
   OVC3860::getNextEventFromBT();
@@ -1552,7 +1481,7 @@ uint8_t OVC3860::ChangeLocalName(String name) {
   AT#MN1234 :the new pin is :1234
   AT#MN :indication will be MP<current pin>
 */
-uint8_t OVC3860::ChangePin(String pin) {
+uint8_t OVC3860::changePin(String pin) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CHANGE_PIN + pin);
   OVC3860::getNextEventFromBT();
@@ -1587,7 +1516,7 @@ uint8_t OVC3860::ChangePin(String pin) {
   3 Connected
 
 */
-uint8_t OVC3860::QueryAvrcpStatus() {
+uint8_t OVC3860::queryAvrcpStatus() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_QUERY_AVRCP_STATUS);
   OVC3860::getNextEventFromBT();
@@ -1611,7 +1540,7 @@ uint8_t OVC3860::QueryAvrcpStatus() {
 
   Syntax: AT#MP
 */
-uint8_t OVC3860::AutoAnswerEnable() {
+uint8_t OVC3860::autoAnswerEnable() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_AUTO_ANSWER_ENABLE);
   OVC3860::getNextEventFromBT();
@@ -1635,7 +1564,7 @@ uint8_t OVC3860::AutoAnswerEnable() {
 
   Syntax: AT#MQ
 */
-uint8_t OVC3860::AutoAnswerDisable() {
+uint8_t OVC3860::autoAnswerDisable() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_AUTO_ANSWER_DISABLE);
   OVC3860::getNextEventFromBT();
@@ -1659,7 +1588,7 @@ uint8_t OVC3860::AutoAnswerDisable() {
 
   Syntax: AT#MR
 */
-uint8_t OVC3860::MusicStartFF() {
+uint8_t OVC3860::musicStartFF() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_MUSIC_START_FF);
   OVC3860::getNextEventFromBT();
@@ -1683,7 +1612,7 @@ uint8_t OVC3860::MusicStartFF() {
 
   Syntax: AT#MS
 */
-uint8_t OVC3860::MusicStartRWD() {
+uint8_t OVC3860::musicStartRWD() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_MUSIC_START_RWD);
   OVC3860::getNextEventFromBT();
@@ -1707,7 +1636,7 @@ uint8_t OVC3860::MusicStartRWD() {
 
   Syntax: AT#MT
 */
-uint8_t OVC3860::MusicStopFFRWD() {
+uint8_t OVC3860::musicStopFFRWD() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_MUSIC_STOP_FF_RWD);
   OVC3860::getNextEventFromBT();
@@ -1739,7 +1668,7 @@ uint8_t OVC3860::MusicStopFFRWD() {
   4 Connected
   5 Streaming
 */
-uint8_t OVC3860::QueryA2DPStatus() {
+uint8_t OVC3860::queryA2DPStatus() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_QUERY_A2DP_STATUS);
   OVC3860::getNextEventFromBT();
@@ -1765,7 +1694,7 @@ uint8_t OVC3860::QueryA2DPStatus() {
   ADDR: a given 32-bit, hexadecimal address
   VAL: a written hexadecimal byte value
 */
-uint8_t OVC3860::WriteToMemory(String data) {
+uint8_t OVC3860::writeToMemory(String data) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_WRITE_TO_MEMORY + data);
   OVC3860::getNextEventFromBT();
@@ -1792,7 +1721,7 @@ uint8_t OVC3860::WriteToMemory(String data) {
   ADDR: a given 32-bit, hexadecimal address
   <val>: a read hexadecimal byte value
 */
-uint8_t OVC3860::ReadToMemory(String data) {
+uint8_t OVC3860::readToMemory(String data) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_READ_FROM_MEMORY + data);
   OVC3860::getNextEventFromBT();
@@ -1817,7 +1746,7 @@ uint8_t OVC3860::ReadToMemory(String data) {
 
   Syntax: AT#MZ
 */
-uint8_t OVC3860::SwitchDevices() {
+uint8_t OVC3860::switchDevices() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_SWITCH_DEVICES);
   OVC3860::getNextEventFromBT();
@@ -1842,7 +1771,7 @@ uint8_t OVC3860::SwitchDevices() {
 
   Syntax: AT#MY
 */
-uint8_t OVC3860::QueryVersion() {
+uint8_t OVC3860::queryVersion() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_QUERY_VERSION);
   OVC3860::getNextEventFromBT();
@@ -1868,7 +1797,7 @@ uint8_t OVC3860::QueryVersion() {
 
   Syntax: AT#PA
 */
-uint8_t OVC3860::PbSyncBySim() {
+uint8_t OVC3860::pbSyncBySim() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PB_SYNC_BY_SIM);
   OVC3860::getNextEventFromBT();
@@ -1894,7 +1823,7 @@ uint8_t OVC3860::PbSyncBySim() {
 
   Syntax: AT#PB
 */
-uint8_t OVC3860::PbSyncByPhone() {
+uint8_t OVC3860::pbSyncByPhone() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PB_SYNC_BY_PHONE);
   OVC3860::getNextEventFromBT();
@@ -1922,7 +1851,7 @@ uint8_t OVC3860::PbSyncByPhone() {
 
   Syntax: AT#PC
 */
-uint8_t OVC3860::PbReadNextItem() {
+uint8_t OVC3860::pbReadNextItem() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PB_READ_NEXT_ITEM);
   OVC3860::getNextEventFromBT();
@@ -1950,7 +1879,7 @@ uint8_t OVC3860::PbReadNextItem() {
 
   Syntax: AT#PD
 */
-uint8_t OVC3860::PbReadPreviousItem() {
+uint8_t OVC3860::pbReadPreviousItem() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PB_READ_PREVIOUS_ITEM);
   OVC3860::getNextEventFromBT();
@@ -1976,7 +1905,7 @@ uint8_t OVC3860::PbReadPreviousItem() {
 
   Syntax: AT#PH
 */
-uint8_t OVC3860::PbSyncByDialer() {
+uint8_t OVC3860::pbSyncByDialer() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PB_SYNC_BY_DIALED);
   OVC3860::getNextEventFromBT();
@@ -2002,7 +1931,7 @@ uint8_t OVC3860::PbSyncByDialer() {
 
   Syntax: AT#PI
 */
-uint8_t OVC3860::PbSyncByReceiver() {
+uint8_t OVC3860::pbSyncByReceiver() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PB_SYNC_BY_RECEIVED);
   OVC3860::getNextEventFromBT();
@@ -2028,7 +1957,7 @@ uint8_t OVC3860::PbSyncByReceiver() {
 
   Syntax: AT#PJ
 */
-uint8_t OVC3860::PbSyncByMissed() {
+uint8_t OVC3860::pbSyncByMissed() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PB_SYNC_BY_MISSED);
   OVC3860::getNextEventFromBT();
@@ -2054,7 +1983,7 @@ uint8_t OVC3860::PbSyncByMissed() {
 
   Syntax: AT#PK
 */
-uint8_t OVC3860::PbSyncByLastCall() {
+uint8_t OVC3860::pbSyncByLastCall() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_PB_SYNC_BY_LAST_CALL);
   OVC3860::getNextEventFromBT();
@@ -2082,7 +2011,7 @@ uint8_t OVC3860::PbSyncByLastCall() {
 
   Syntax: AT#PL
 */
-uint8_t OVC3860::GetLocalLastDialedList() {
+uint8_t OVC3860::getLocalLastDialedList() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_GET_LOCAL_LAST_DIALED_LIST);
   OVC3860::getNextEventFromBT();
@@ -2110,7 +2039,7 @@ uint8_t OVC3860::GetLocalLastDialedList() {
 
   Syntax: AT#PM
 */
-uint8_t OVC3860::GetLocalLastReceivedList() {
+uint8_t OVC3860::getLocalLastReceivedList() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_GET_LOCAL_LAST_RECEIVED_LIST);
   OVC3860::getNextEventFromBT();
@@ -2138,7 +2067,7 @@ uint8_t OVC3860::GetLocalLastReceivedList() {
 
   Syntax: AT#PN
 */
-uint8_t OVC3860::GetLocalLastMissedList() {
+uint8_t OVC3860::getLocalLastMissedList() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_GET_LOCAL_LAST_MISSED_LIST);
   OVC3860::getNextEventFromBT();
@@ -2168,7 +2097,7 @@ uint8_t OVC3860::GetLocalLastMissedList() {
 
   Syntax: AT#PO
 */
-uint8_t OVC3860::DialLastReceivedCall() {
+uint8_t OVC3860::dialLastReceivedCall() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_DIAL_LAST_RECEIVED_CALL);
   OVC3860::getNextEventFromBT();
@@ -2191,7 +2120,7 @@ uint8_t OVC3860::DialLastReceivedCall() {
 
   Syntax: AT#PR
 */
-uint8_t OVC3860::ClearLocalCallHistory() {
+uint8_t OVC3860::clearLocalCallHistory() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CLEAR_LOCAL_CALL_HISTORY);
   OVC3860::getNextEventFromBT();
@@ -2216,7 +2145,7 @@ uint8_t OVC3860::ClearLocalCallHistory() {
   Syntax: AT#STdata
   data: the string you need to send. The max len is 20.
 */
-uint8_t OVC3860::SppDataTransmit() {
+uint8_t OVC3860::sppDataTransmit() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_SPP_DATA_TRANSMIT);
   OVC3860::getNextEventFromBT();
@@ -2239,7 +2168,7 @@ uint8_t OVC3860::SppDataTransmit() {
 
   Syntax: AT#VC
 */
-uint8_t OVC3860::SetClockdebugMode() {
+uint8_t OVC3860::setClockdebugMode() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_SET_CLOCKDEBUG_MODE);
   OVC3860::getNextEventFromBT();
@@ -2263,7 +2192,7 @@ uint8_t OVC3860::SetClockdebugMode() {
 
   Syntax: AT#VD
 */
-uint8_t OVC3860::VolumeDown() {
+uint8_t OVC3860::volumeDown() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_VOLUME_DOWN);
   OVC3860::getNextEventFromBT();
@@ -2287,7 +2216,7 @@ uint8_t OVC3860::VolumeDown() {
 
   Syntax: AT#VE
 */
-uint8_t OVC3860::EnterTestMode() {
+uint8_t OVC3860::enterTestMode() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_ENTER_TEST_MODE);
   OVC3860::getNextEventFromBT();
@@ -2311,7 +2240,7 @@ uint8_t OVC3860::EnterTestMode() {
 
   Syntax: AT#VF
 */
-uint8_t OVC3860::SetFixedFrequency() {
+uint8_t OVC3860::setFixedFrequency() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_SET_FIXED_FREQUENCY);
   OVC3860::getNextEventFromBT();
@@ -2351,7 +2280,7 @@ uint8_t OVC3860::SetFixedFrequency() {
   3DH3          12
   3DH5          14
 */
-uint8_t OVC3860::EmcTestMode() {
+uint8_t OVC3860::emcTestMode() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_EMC_TEST_MODE);
   OVC3860::getNextEventFromBT();
@@ -2378,7 +2307,7 @@ uint8_t OVC3860::EmcTestMode() {
   yy: a byte value
   Example: AT#VH54_88(set RF reg 0x54 to be 0x88)
 */
-uint8_t OVC3860::SetRFRegister() {
+uint8_t OVC3860::setRFRegister() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_SET_RF_REGISTER);
   OVC3860::getNextEventFromBT();
@@ -2402,7 +2331,7 @@ uint8_t OVC3860::SetRFRegister() {
 
   Syntax: AT#VI
 */
-uint8_t OVC3860::InquiryStart() {
+uint8_t OVC3860::inquiryStart() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_INQUIRY_START);
   OVC3860::getNextEventFromBT();
@@ -2426,7 +2355,7 @@ uint8_t OVC3860::InquiryStart() {
 
   Syntax: AT#VJ
 */
-uint8_t OVC3860::InquiryStop() {
+uint8_t OVC3860::inquiryStop() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_INQUIRY_STOP);
   OVC3860::getNextEventFromBT();
@@ -2450,7 +2379,7 @@ uint8_t OVC3860::InquiryStop() {
 
   Syntax: AT#VU
 */
-uint8_t OVC3860::VolumeUp() {
+uint8_t OVC3860::volumeUp() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_VOLUME_UP);
   OVC3860::getNextEventFromBT();
@@ -2474,7 +2403,7 @@ uint8_t OVC3860::VolumeUp() {
 
   Syntax: AT#VX
 */
-uint8_t OVC3860::Shutdown() {
+uint8_t OVC3860::shutdown() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_SHUTDOWN_MODULE);
   OVC3860::getNextEventFromBT();
