@@ -33,7 +33,7 @@ OVC3860::OVC3860(SoftwareSerial *ser, uint8_t resetPin)
 OVC3860::OVC3860(NewSoftSerial *ser, uint8_t resetPin)
 #endif
 #else
-OVC3860::OVC3860(HardwareSerial *ser, uint8_t resetPin) {
+OVC3860::OVC3860(HardwareSerial *ser, uint8_t resetPin)
 #endif
 {
   btSerial = ser;
