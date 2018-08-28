@@ -213,7 +213,6 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t sendData(String cmd);
     uint8_t getNextEventFromBT();
     uint8_t sendRawData(uint8_t _size, uint8_t data[]);
-    String returnBtModuleName(String receivedString);
     
     uint8_t pairingInit();
     uint8_t pairingExit();
@@ -297,6 +296,7 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t _reset;
     uint8_t decodeReceivedString(String receivedString);
     uint8_t decodeReceivedDataArray(uint8_t data[]);
+    String returnBtModuleName(String receivedString);
     void DBG(String text);
     void resetHigh();
     void resetLow();

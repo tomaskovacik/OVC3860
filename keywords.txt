@@ -3,7 +3,6 @@ begin	KEYWORD2
 sendData	KEYWORD2
 getNextEventFromBT	KEYWORD2
 resetModule	KEYWORD2
-returnBtModuleName	KEYWORD2
 pairingInit	KEYWORD2
 pairingExit	KEYWORD2
 connectHSHF	KEYWORD2
