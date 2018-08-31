@@ -206,7 +206,7 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
 #endif
 #endif
     OVC3860(HardwareSerial *ser, uint8_t resetPin);
-    void begin(uint32_t baudrate = 9600);
+    void begin(uint32_t baudrate = 115200);
     ~OVC3860();
 
     uint8_t sendData(String cmd);
@@ -241,8 +241,8 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t queryConfiguration();
     uint8_t autoconnEnable();
     uint8_t autoconnDisable();
-    uint8_t avSourceConnect();
-    uint8_t avSourceDisconnect();
+    uint8_t connectA2DP();
+    uint8_t disconnectA2DP();
     uint8_t changeLocalName(String name = ""); //without parameter module should return actual name, did not work for me
     uint8_t changePin(String pin = ""); //without parameter module should return actual pin, did not work for me
     uint8_t queryAvrcpStatus();
@@ -289,6 +289,9 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t writePin(String NewPin);
     uint8_t readBaudRate();
     uint8_t writeBaudRate(uint8_t NewBaudRate = OVC3860_BAUDRATE_115200);
+    uint8_t readMode();
+    uint8_t readClassOfDevice();
+    uint8_t writeClassOfDevice();
     void resetModule();
 
   private:

@@ -134,8 +134,8 @@ void loop() {
           Serial.println(F("Query configuration          q"));
           Serial.println(F("Enable auto connect          r"));
           Serial.println(F("Disable auto connect         s"));
-          Serial.println(F("Connect audio source         t"));
-          Serial.println(F("Disconnect audio source      u"));
+          Serial.println(F("Connect audio(A2DP) source   t"));
+          Serial.println(F("Disconnect audio(A2DP)source u"));
           Serial.println(F("Change local name       v+name"));
           Serial.println(F("Change pin               w+pin"));
           Serial.println(F("Query AVRCP status           x"));
@@ -174,6 +174,7 @@ void loop() {
           Serial.println(F("Volume up                    ;"));
           Serial.println(F("Shutdown module              '"));
           Serial.println(F("Enter config mode            ."));
+          Serial.println(F("Resetin module(HW way)       ,"));
           break;
         case 'i':
           {
@@ -220,10 +221,10 @@ void loop() {
           BT.queryConfiguration();
           break;
         case 't':
-          BT.avSourceConnect();
+          BT.connectA2DP();
           break;
         case 'u':
-          BT.avSourceDisconnect();
+          BT.disconnectA2DP();
           break;
         case 'v':
           {
@@ -377,6 +378,9 @@ void loop() {
         case '.':
           BT.enterConfigMode();
           break;
+        case ',':
+          BT.resetModule();
+          break;
       }
     }
   }
@@ -406,7 +410,16 @@ void loop() {
           Serial.println(F("       use B9 for 230400b"));
           Serial.println(F("       use BA for 460800b"));
           Serial.println(F("       use BB for 921600b"));
+          Serial.println(F("read mode               m"));
+          Serial.println(F("read class of device    c"));
+          Serial.println(F("write class of device   C"));
           break;
+        case 'c':
+          BT.readClassOfDevice();
+        break;
+        case 'C':
+          BT.writeClassOfDevice();
+        break;
         case 'n':
           BT.readName();
           break;
@@ -488,6 +501,9 @@ void loop() {
                 break;
             }
           }
+          break;
+          case 'm':
+            BT.readMode();
           break;
       }
     }
@@ -668,6 +684,9 @@ void printBTState() {
       break;
     case BT.Discoverable:
       Serial.println(F("BT Discoverable"));
+      break;
+      case BT.Listening:
+      Serial.println(F("BT Listening"));
       break;
   }
 }

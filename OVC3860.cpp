@@ -115,6 +115,7 @@ void OVC3860::DBG(String text) {
 uint8_t OVC3860::decodeReceivedString(String receivedString) {
   DBG(receivedString);
   DBG(F("\n"));
+  //while (receivedString[0] == 0x20) {receivedString = receivedString.substring(0);};
   if (memcmp(&receivedString[0], "AX_PA", 5) == 0) {
   } else if (memcmp(&receivedString[0], "AA1", 3) == 0) { //The audio sample rating is set 48000
     PowerState = On;
@@ -153,7 +154,7 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
     BTState = Listening;
   } else if (memcmp(&receivedString[0], "IA", 2) == 0) { //Disconnected,HSHF state is listening
     PowerState = On;
-    HFPState = Listening;
+    HFPState = Disconnected;
   } else if (memcmp(&receivedString[0], "IC", 2) == 0) { //Call-setup status is outgoing
     PowerState = On;
     CallState = OngoingCall;
@@ -326,6 +327,7 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
     MusicState = FastForwarding;
   } else if (memcmp(&receivedString[0], "MY", 2) == 0) { //AV Disconnect Indication
     PowerState = On;
+    OVC3860::queryA2DPStatus();
   } else if (memcmp(&receivedString[0], "M0", 2) == 0) { //
     PowerState = On;
     BTState = Disconnected;
@@ -447,6 +449,39 @@ uint8_t OVC3860::readName() {
   OVC3860::getNextEventFromBT();
 }
 
+uint8_t OVC3860::readMode() {
+  if (BTState != ConfigMode) {
+    return false;
+  } else {
+    DBG(F("Reading name\n"));
+    uint8_t Data[4] = {0x10, 0x07, 0x00, 0x01};
+    sendRawData(4, Data);
+  }
+  OVC3860::getNextEventFromBT();
+}
+
+uint8_t OVC3860::readClassOfDevice() {
+  if (BTState != ConfigMode) {
+    return false;
+  } else {
+    DBG(F("Reading name\n"));
+    uint8_t Data[4] = {0x10, 36, 0x00, 0x03};
+    sendRawData(4, Data);
+  }
+  OVC3860::getNextEventFromBT();
+}
+
+uint8_t OVC3860::writeClassOfDevice() {
+  if (BTState != ConfigMode) {
+    return false;
+  } else {
+    DBG(F("Reading name\n"));
+    uint8_t Data[7] = {0x30, 36, 0x00, 0x03, 0x04,0x04,0x24};
+    sendRawData(7, Data);
+  }
+  OVC3860::getNextEventFromBT();
+}
+
 uint8_t OVC3860::writeName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
   if (BTState != ConfigMode) {
     return false;
@@ -512,7 +547,7 @@ uint8_t OVC3860::readBaudRate() {
     return false;
   } else {
     DBG(F("Reading Pin\n"));
-    uint8_t Data[4] = {0x11, 0x11, 0x00, 0x01};
+    uint8_t Data[4] = {0x10, 0x11, 0x00, 0x01};
     sendRawData(4, Data);
   }
   OVC3860::getNextEventFromBT();
@@ -1475,7 +1510,7 @@ uint8_t OVC3860::autoconnDisable() {
 
   Syntax: AT#MI
 */
-uint8_t OVC3860::avSourceConnect() {
+uint8_t OVC3860::connectA2DP() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_AV_SOURCE_CONNECT);
   OVC3860::getNextEventFromBT();
@@ -1499,7 +1534,7 @@ uint8_t OVC3860::avSourceConnect() {
 
   Syntax: AT#MJ
 */
-uint8_t OVC3860::avSourceDisconnect() {
+uint8_t OVC3860::disconnectA2DP() {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_AV_SOURCE_DISCONNECT);
   OVC3860::getNextEventFromBT();
