@@ -62,7 +62,7 @@ void OVC3860::resetHigh() {
 }
 
 void OVC3860::resetModule() {
-  DBG("reseting module\n");
+  DBG(F("reseting module\n"));
   resetLow();
   delay(100);
   resetHigh();
@@ -72,230 +72,313 @@ void OVC3860::resetModule() {
    debug output
 */
 void OVC3860::DBG(String text) {
-  if (DEBUG) {
-    if (!Serial.availableForWrite()) delay(100);
-    Serial.print(text);;
-  }
+  if (DEBUG) /*return "DBG: ");*/ Serial.print(text);
 }
 
+/*
+   AA1 = 44800
+   AA2 = 44100
+   AA4 = 32000
+   AA8 = 16000
+   AE = config error
+   AF = codec closed
+   AS = phone call
+
+   II HSHF enters pairing state, discoverable for 2 minutes
+   IJ2 HSHF exits pairing mode and enters listening
+   IV HSHF State Is Connected indication
+   IA HSHF State Is Listening
+   IC Call-setup status is outgoing
+   IF Call-setup status is idle/hang-up indication
+   IG ongoing call indication
+   IP5 Outgoing call number length indication,IPXX The next or previous PB number length indication, IP<lehgth>: Length of Phone Number
+   IR12345 Outgoing call number indication (IP, IR indications only supported by HFP1.5 version.)
+   IS
+
+   MA playing
+   MB pause
+   MC Outgoing call number indication (audio transfered from handset(phone?) to module)
+   MD The voice is on phone indication ((audio transfered to handset(phone?) from module)
+   MGX The HSHF applications state is X indication, 1 – “Ready”, 2 – “Connecting”, 3 – “Connected”, 4 –“outgoing call”, 5 –“incoming call”,6 – “ongoing call”
+   MGXY X and Y are auto answer and auto connect after power on configuration, X:1 – “support auto answer”, 0 – “not support auto answer”, Y:1 – “support auto connect after power on”, 0 – “no
+   MFXY Power ON Init Complete Report AutoAnswer and PowerOn Auto Connection Configuration
+
+   PE The voice dial start indication
+   PF The voice dial is not supported indication
+   PA0 The phone does not support the phone book feature
+   PA1 The phone supports the phone book feature
+   PBYY The next or previous PB number, PB<phonebook>: One Phonebook Indication
+   PC End of Phonebook/Call History
+   MN<phone number>, One Phonebook Indication
+
+*/
 uint8_t OVC3860::decodeReceivedString(String receivedString) {
   DBG(receivedString);
-  DBG("\n");
-  switch (receivedString[0]) {
-    case 'A':
-      {
-        switch (receivedString[1]) {
-          case 'A':
-            {
-              switch (receivedString[2]) {
-                case '1':
-                  ASR = _44800;
-                  break;
-                case '2':
-                  ASR = _44100;
-                  break;
-                case '4':
-                  ASR = _32000;
-                  break;
-                case '8':
-                  ASR = _16000;
-                  break;
-              }
-            }
-            break;
-          case 'E':
-            Audio = ConfirError;
-            break;
-          case 'F':
-            Audio = CodecClosed;
-            break;
-          case 'S':
-            Audio = PhoneCall;
-            break;
-        }
-      }
-      break;
-    case 'I':// connection info
-      {
-        PowerState = On;
-        switch (receivedString[1]) {
-          case 'I': //HSHF enters pairing state, discoverable for 2 minutes
-            BTState = Discoverable;
-            break;
-          case 'J':
-            if (receivedString[1] == '2')
-              BTState = Listening; //HSHF exits pairing mode and enters listening
-            break;
-          case 'V':
-            HFPState = Connected;
-            break;
-          case 'A':
-            HFPState = Listening;
-            break;
-          case 'F': //Call-setup status is idle
-            PhoneState = PhoneHangUp;//??
-            break;
-          case 'H':
-            //??
-            break;
-        }
-      }
-      break;
-    case 'M':
-      {
-        PowerState = On;
-        switch (receivedString[1]) {
-          case 'A':
-            MusicState = Idle;
-            break;
-          case 'B':
-            MusicState = Playing;
-            break;
-          case 'E':
-            //          if (receivedString[2] == 'M' && receivedString[3] == ':')
-            //            return receivedString;
-            break;
-          case 'F':
-            {
-              switch (receivedString[2]) {
-                case '0':
-                  AutoAnswer = Off;
-                  break;
-                case '1':
-                  AutoAnswer = On;
-                  break;
-              }
-              switch (receivedString[3]) {
-                case '0':
-                  AutoConnect = Off;
-                  break;
-                case '1':
-                  AutoConnect = On;
-                  break;
-              }
-            }
-            break;
-          /*
-            HFP Status Value Description:(MG) => uint8_t HFPState
-            1. Ready (to be connected)
-            2. Connecting
-            3. Connected
-            4. Outgoing Call
-            5. Incoming Call
-            6. Ongoing Call
-          */
-          case 'G':
-            {
-              switch (receivedString[2]) {
-                case '1':
-                  HFPState = Ready;
-                  break;
-                case '2':
-                  HFPState = Connecting;
-                  break;
-                case '3':
-                  HFPState = Connected;
-                  break;
-                case '4':
-                  HFPState = OutgoingCall;
-                  break;
-                case '5':
-                  HFPState = IncomingCall;
-                  break;
-                case '6':
-                  HFPState = OngoingCall;
-                  break;
-              }
-            }
-            break;
-          /*
-            AVRCP Status Value Description:(ML) => uint8_t AVRCPState
-            1. Ready (to be connected)
-            2. Connecting
-            3. Connected
-          */
-          case 'L':
-            break;
-          case 'P':
-            MusicState = Idle;
-            break;
-          case 'R':
-            MusicState = Playing;
-            break;
-          case 'S':
-            MusicState = Rewinding;
-            break;
-          /*
-            A2DP Status Value Description:(MU) => uint8_t A2DPState
-            1. Ready (to be connected)
-            2. Initializing
-            3. Signalling Active
-            4. Connected
-            5. Streaming
-          */
-          case 'U':
-            break;
-          case 'X':
-            MusicState = FastForwarding;
-            break;
-          case '0':
-            BTState = Disconnected;
-            break;
-          case '1':
-            BTState = Connected;
-            break;
-          case '2':
-            CallState = IncomingCall;
-            break;
-          case '3':
-            CallState = OutgoingCall;
-            break;
-          case '4':
-            CallState = OngoingCall;
-            break;
-        }
-      }
-      break;
-    case 'P':
-      {
-        PowerState = On;
-        switch (receivedString[1]) {
-          case 'A':
-            {
-              switch (receivedString[2]) {
-                case '0':
-                  break;
-                case '1':
-                  break;
-
-              }
-            }
-            break;
-          case 'C':
-            break;
-        }
-      }
-      break;
-    case 0xA: //\r
-      OVC3860::decodeReceivedString(receivedString.substring(1));
-      break;
-    case 0x20: //space
-      OVC3860::decodeReceivedString(receivedString.substring(1));
-      break;
-    case 'S':
-      switch (receivedString[1]) {
-        case 'C':
-          BTState = SPPopened;
-          DBG("SPP opened");
-          break;
-        case 'D':
-          BTState = SPPclosed;
-          DBG("SPP closed");
-          break;
-      }
-      break;
-    default :
-      DBG("received :" + (char)receivedString[0]);
+  DBG(F("\n"));
+  if (memcmp(&receivedString[0], "AX_PA", 5) == 0) {
+  } else if (memcmp(&receivedString[0], "AA1", 3) == 0) { //The audio sample rating is set 48000
+    PowerState = On;
+    Audio = ASR_44800;
+  } else if (memcmp(&receivedString[0], "AA2", 3) == 0) { //The audio sample rating is set 44100
+    PowerState = On;
+    Audio = ASR_44100;
+  } else if (memcmp(&receivedString[0], "AA4", 3) == 0) { //The audio sample rating is set 32000
+    PowerState = On;
+    Audio = ASR_32000;
+  } else if (memcmp(&receivedString[0], "AA8", 3) == 0) { //The audio sample rating is set 16000
+    PowerState = On;
+    Audio = ASR_16000;
+  } else if (memcmp(&receivedString[0], "AE", 2) == 0) { //Audio config error
+    PowerState = On;
+    Audio = ConfigError;
+  } else if (memcmp(&receivedString[0], "AF", 2) == 0) { //Audio codec is closed
+    PowerState = On;
+    Audio = CodecClosed;
+  } else if (memcmp(&receivedString[0], "AS", 2) == 0) { //Audio codec is in phone call mode
+    PowerState = On;
+    Audio = PhoneCall;
+  } else if (memcmp(&receivedString[0], "EPER", 3) == 0) { //Error eeprom parameter
+    PowerState = On;
+    return 0;
+  } else if (memcmp(&receivedString[0], "ERR", 3) == 0) { //The command is error
+    PowerState = On;
+    return 0;
+  } else if (memcmp(&receivedString[0], "II", 2) == 0) { //HSHF enters pairing state indication
+    DBG(F("II\n"));
+    PowerState = On;
+    BTState = Discoverable;
+    OVC3860::queryA2DPStatus();
+  } else if (memcmp(&receivedString[0], "IJ2", 3) == 0) {//HSHF exits pairing mode and enters listening
+    PowerState = On;
+    BTState = Listening;
+  } else if (memcmp(&receivedString[0], "IA", 2) == 0) { //Disconnected,HSHF state is listening
+    PowerState = On;
+    HFPState = Listening;
+  } else if (memcmp(&receivedString[0], "IC", 2) == 0) { //Call-setup status is outgoing
+    PowerState = On;
+    CallState = OngoingCall;
+  } else if (memcmp(&receivedString[0], "IF", 2) == 0) { //Phone hand up,Call-setup status is idle
+    PowerState = On;
+    CallState = PhoneHangUp;
+  } else if (memcmp(&receivedString[0], "IG", 2) == 0) {
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "IL", 2) == 0) { //Hold Active Call, Accept Other Call
+    PowerState = On;
+    CallState = OngoingCall;
+  } else if (memcmp(&receivedString[0], "IM", 2) == 0) { //Make Conference Call
+    PowerState = On;
+    CallState = OngoingCall;
+  } else if (memcmp(&receivedString[0], "IN", 2) == 0) { //Release Held Call, Reject Waiting Call
+    PowerState = On;
+    CallState = PhoneHangUp;
+  } else if (memcmp(&receivedString[0], "IP", 2) == 0) { //IPX Outgoing call number length(X) indication
+    PowerState = On;
+    CallState = OngoingCall;
+  } else if (memcmp(&receivedString[0], "IR", 2) == 0) { //Outgoing call number indication
+    PowerState = On;
+    CallState = OutgoingCall;
+  } else if (memcmp(&receivedString[0], "IS", 2) == 0) { //IS<version> , Power ON Init Complete
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "IT", 2) == 0) { //Release Active Call, Accept Other Call
+    PowerState = On;
+    CallState = OngoingCall;
+  } else if (memcmp(&receivedString[0], "IV", 2) == 0) { //Connected
+    PowerState = On;
+    HFPState = Connected;
+    OVC3860::queryA2DPStatus();
+  } else if (memcmp(&receivedString[0], "MA", 2) == 0) { //AV pause/stop Indication
+    PowerState = On;
+    MusicState = Idle;
+    CallState = PhoneHangUp;
+    OVC3860::queryA2DPStatus();
+  } else if (memcmp(&receivedString[0], "MB", 2) == 0) { //AV play Indication
+    PowerState = On;
+    MusicState = Playing;
+    CallState = PhoneHangUp;
+    OVC3860::queryA2DPStatus();
+  } else if (memcmp(&receivedString[0], "MC", 2) == 0) { //Indication the voice is on Bluetooth
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "MD", 2) == 0) { //Indication the voice is on phone
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "ME", 2) == 0) {
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "MEM:", 4) == 0) {
+    PowerState = On;
+    //need to chage return to be long long (64bit?) to return memory data
+  } else if (memcmp(&receivedString[0], "MF", 2) == 0) { //MFXY: X and Y are auto answer and auto connect configuration
+    PowerState = On;
+    //DBG("MF");
+    switch (receivedString[2]) {
+      case '0':
+        AutoAnswer = Off;
+      //  DBG("AA OFF");
+        break;
+      case '1':
+        AutoAnswer = On;
+        //DBG("AA ON");
+        break;
+    }
+    switch (receivedString[3]) {
+      case '0':
+        AutoConnect = Off;
+        //DBG("AC OFF");
+        break;
+      case '1':
+        AutoConnect = On;
+        //DBG("AA ON");
+        break;
+    }
+  } else if (memcmp(&receivedString[0], "MG", 2) == 0) { //MGX: The HSHF applications state is X indication, Report Current HFP Status
+    /*
+      HFP Status Value Description:(MG)
+      1. Ready (to be connected)
+      2. Connecting
+      3. Connected
+      4. Outgoing Call
+      5. Incoming Call
+      6. Ongoing Call
+    */
+    PowerState = On;
+    switch (receivedString[2]) {
+      case '1':
+        HFPState = Ready;
+        break;
+      case '2':
+        HFPState = Connecting;
+        break;
+      case '3':
+        HFPState = Connected;
+        break;
+      case '4':
+        HFPState = OutgoingCall;
+        break;
+      case '5':
+        HFPState = IncomingCall;
+        break;
+      case '6':
+        HFPState = OngoingCall;
+        break;
+    }
+  } else if (memcmp(&receivedString[0], "ML", 2) == 0) { //Report Current AVRCP Status
+    /*
+      AVRCP Status Value Description:(ML)
+      1. Ready (to be connected)
+      2. Connecting
+      3. Connected
+    */
+    PowerState = On;
+    switch (receivedString[2]) {
+      case '1':
+        AVRCPState = Ready;
+        break;
+      case '2':
+        AVRCPState = Connecting;
+        break;
+      case '3':
+        AVRCPState = Connected;
+        break;
+    }
+  } else if (memcmp(&receivedString[0], "MM", 2) == 0) { //name
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "MN", 2) == 0) { //pin
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "MP", 2) == 0) { //Music Pause
+    DBG(F("MP"));
+    PowerState = On;
+    MusicState = Idle;
+    OVC3860::queryA2DPStatus();
+  } else if (memcmp(&receivedString[0], "MR", 2) == 0) { //Music Resume
+    PowerState = On;
+    MusicState = Playing;
+    OVC3860::queryA2DPStatus();
+  } else if (memcmp(&receivedString[0], "MS", 2) == 0) { //Backward song
+    PowerState = On;
+    MusicState = Rewinding;
+  } else if (memcmp(&receivedString[0], "MU", 2) == 0) { //Report Current A2DP Status
+    /*
+      A2DP Status Value Description:(MU)
+      1. Ready (to be connected)
+      2. Initializing
+      3. Signalling Active
+      4. Connected
+      5. Streaming
+    */
+    PowerState = On;
+    switch (receivedString[2]) {
+      case '1':
+        A2DPState = Ready;
+        break;
+      case '2':
+        A2DPState = Initializing;
+        break;
+      case '3':
+        A2DPState = SignallingActive;
+        break;
+      case '4':
+        A2DPState = Connected;
+        break;
+      case '5':
+        A2DPState = Streaming;
+        break;
+    }
+  } else if (memcmp(&receivedString[0], "MX", 2) == 0) { //Forward song
+    PowerState = On;
+    MusicState = FastForwarding;
+  } else if (memcmp(&receivedString[0], "MY", 2) == 0) { //AV Disconnect Indication
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "M0", 2) == 0) { //
+    PowerState = On;
+    BTState = Disconnected;
+  } else if (memcmp(&receivedString[0], "M1", 2) == 0) { //AV Disconnect Indication
+    PowerState = On;
+    BTState = Connected;
+  } else if (memcmp(&receivedString[0], "M2", 2) == 0) { //AV Disconnect Indication
+    PowerState = On;
+    CallState = IncomingCall;
+  } else if (memcmp(&receivedString[0], "M3", 2) == 0) { //AV Disconnect Indication
+    PowerState = On;
+    CallState = OutgoingCall;
+  } else if (memcmp(&receivedString[0], "M4", 2) == 0) { //AV Disconnect Indication
+    PowerState = On;
+    CallState = OngoingCall;
+  } else if (memcmp(&receivedString[0], "NOEP", 4) == 0) {//No eeprom
+    PowerState = On;
+    return 0;
+  } else if (memcmp(&receivedString[0], "NUM", 3) == 0) {
+    CallState = IncomingCall;
+    PowerState = On;
+    CallerID = receivedString.substring(4);
+  } else if (memcmp(&receivedString[0], "OK", 2) == 0) {
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "PA", 2) == 0) {
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "PB", 2) == 0) {
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "PC", 2) == 0) { //?
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "PE", 2) == 0) { //The voice dial start indication
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "PF", 2) == 0) { //The voice dial is not supported/stopped indication
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "SC", 2) == 0) { //SPP opened
+    PowerState = On;
+    BTState = SPPopened;
+    DBG(F("SPP opened\n"));
+  } else if (memcmp(&receivedString[0], "SD", 2) == 0) { //SPP closed
+    PowerState = On;
+    BTState = SPPclosed;
+    DBG(F("SPP closed\n"));
+  } else if (memcmp(&receivedString[0], "SW", 2) == 0) { //Command Accepted
+    PowerState = On;
+  } else if (memcmp(&receivedString[0], "VOL", 3) == 0) { //Command Accepted
+    PowerState = On;
+    volume = receivedString.substring(3).toInt();
+  } else if (receivedString[0] == 0xA) {
+  } else if (receivedString[0] == 0xD) {
+  } else {
+    DBG(F("Received unknown string:"));
+    DBG(receivedString);
+    DBG(F("\n"));
   }
   return 1;
 }
@@ -305,18 +388,18 @@ uint8_t OVC3860::sendRawData(uint8_t _size, uint8_t _data[]) {
     btSerial -> write(_data[i]);
   }
 
-  DBG("sending raw data: ");
+  DBG(F("sending raw data: "));
   for (uint8_t i = 0; i < _size; i++ ) {
     DBG(String(_data[i], HEX));
   }
-  DBG("\n");
+  DBG(F("\n"));
 }
 
 uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG("Quiting config mode\n");
+    DBG(F("Quiting config mode\n"));
     // OVC3860::ResetModule();
     uint8_t Data[4] = {0x50, 0x00, 0x00, 0x00};
     sendRawData(4, Data);
@@ -344,7 +427,7 @@ uint8_t OVC3860::enterConfigMode() {
 
   if (btSerial -> available()) {
     if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x01 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
-      //DBG("Config mode");
+      //DBG(F("Config mode"));
       BTState = ConfigMode;
     }
     else
@@ -357,7 +440,7 @@ uint8_t OVC3860::readName() {
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG("Reading name\n");
+    DBG(F("Reading name\n"));
     uint8_t Data[4] = {0x11, 0xc7, 0x00, 0x10};
     sendRawData(4, Data);
   }
@@ -369,10 +452,10 @@ uint8_t OVC3860::writeName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
     return false;
   } else {
     if (NewName.length() - 2 > 16) { //count for termination char
-      DBG("name to long, max 16chars");
+      DBG(F("name to long, max 16chars\n"));
       return false;
     } else {
-      DBG("Writing name\n");
+      DBG(F("Writing name\n"));
       uint8_t Data[20] = {0x31, 0xc7, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
       for (uint8_t i = 0; i < NewName.length() - 2; i++) {
         Data[i + 4] = NewName[i];
@@ -387,7 +470,7 @@ uint8_t OVC3860::readAllPSK() {
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG("Reading All PSK\n");
+    DBG(F("Reading All PSK\n"));
     uint8_t Data[4] = {0x10, 0x00, 0x03, 0x3D};
     sendRawData(4, Data);
   }
@@ -398,7 +481,7 @@ uint8_t OVC3860::readPin() {
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG("Reading Pin\n");
+    DBG(F("Reading Pin\n"));
     uint8_t Data[4] = {0x11, 0xBF, 0x00, 0x08};
     sendRawData(4, Data);
   }
@@ -410,10 +493,10 @@ uint8_t OVC3860::writePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
     return false;
   } else {
     if (NewPin.length() - 2 > 8) { //count for termination char
-      DBG("name to long, max 8 chars");
+      DBG(F("name to long, max 8 chars"));
       return false;
     } else {
-      DBG("Writing name\n");
+      DBG(F("Writing name\n"));
       uint8_t Data[12] = {0x31, 0xBF, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
       for (uint8_t i = 0; i < NewPin.length() - 2; i++) {
         Data[i + 4] = NewPin[i];
@@ -428,7 +511,7 @@ uint8_t OVC3860::readBaudRate() {
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG("Reading Pin\n");
+    DBG(F("Reading Pin\n"));
     uint8_t Data[4] = {0x11, 0x11, 0x00, 0x01};
     sendRawData(4, Data);
   }
@@ -439,7 +522,7 @@ uint8_t OVC3860::writeBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG("Writing name\n");
+    DBG(F("Writing name\n"));
     uint8_t Data[5] = {0x31, 0x11, 0x00, 0x01, NewBaudRate};
     sendRawData(5, Data);
   }
@@ -447,7 +530,9 @@ uint8_t OVC3860::writeBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00
 }
 
 String OVC3860::returnBtModuleName(String receivedString) {
-  DBG("Bluetooth module name: " + receivedString.substring(4) + "\n");
+  DBG(F("Bluetooth module name: "));
+  DBG(receivedString.substring(4));
+  DBG(F("\n"));
   return receivedString.substring(4);
 }
 
@@ -491,7 +576,7 @@ uint8_t OVC3860::getNextEventFromBT() {
               data[i] = btSerial -> read();
             }
 
-            DBG("received raw data: ");
+            DBG(F("received raw data: "));
 
             if (DEBUG) {
               for (uint16_t i = 0; i < packetSize; i++) {
@@ -522,7 +607,7 @@ uint8_t OVC3860::getNextEventFromBT() {
               data[i] = btSerial -> read();
             }
 
-            DBG("received raw data: ");
+            DBG(F("received raw data: "));
 
             if (DEBUG) {
               for (uint16_t i = 0; i < packetSize; i++) {
@@ -548,27 +633,28 @@ uint8_t OVC3860::getNextEventFromBT() {
 
     while (btSerial -> available() > 0) {
       c = (btSerial -> read());
-      //Serial.write(c);Serial.print(" ");Serial.println(c,HEX);
-      if (BTState != ConfigMode) {
-        if (c == 0xD) {
-          if (receivedString == "") { //nothing before enter was received
-            //DBG("received only empty string\n running again myself...\n");
-            OVC3860::getNextEventFromBT();
-          }
-          receivedString = receivedString + c;
-          decodeReceivedString(receivedString);
-          break;
+      //DBG(String(c,HEX)); DBG("\n");
+      if (c == 0xD || c == 0xA) {
+        if (receivedString == "") { //nothing before enter was received
+          //DBG(F("received only empty string\n running again myself...\n"));
+          return OVC3860::getNextEventFromBT();
         }
+        receivedString = receivedString + c;
+        return decodeReceivedString(receivedString);
+        break;
       }
       //append received buffer with received character
       receivedString = receivedString + c;  // cose += c did not work ...
     }
   }
+  return 0;
 }
 
 uint8_t OVC3860::sendData(String cmd) {
   String Command = "AT#" + cmd + "\r\n";
-  DBG("sending " + Command);
+  DBG(F("sending "));
+  DBG(Command);
+  DBG(F("\n"));
   delay(100);
   btSerial -> print(Command);
 }
@@ -1721,7 +1807,7 @@ uint8_t OVC3860::writeToMemory(String data) {
   ADDR: a given 32-bit, hexadecimal address
   <val>: a read hexadecimal byte value
 */
-uint8_t OVC3860::readToMemory(String data) {
+uint8_t OVC3860::readFromMemory(String data) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_READ_FROM_MEMORY + data);
   OVC3860::getNextEventFromBT();
@@ -2057,7 +2143,7 @@ uint8_t OVC3860::getLocalLastReceivedList() {
   MN<phone number>
   PC
   Indication Description
-  Length of Phone Number Indication
+  Length of Phone Numbervoid print Indication
   One Phonebook Indication
   End of Phonbook/Call History Download Ind
 

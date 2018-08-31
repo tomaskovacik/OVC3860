@@ -158,19 +158,19 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
       SignallingActive,//A2DP
       Streaming,//A2DP
       Playing, //Music
-      Idle, //Music = paused/stoped
+      Idle, //Music = paused/stoped, call =idle;
       On, //PowerState
       Off, //PowerState
       Pairing, //BT
-      ShutdownInProgress,
+      ShutdownInProgress,//PowerState
       FastForwarding, //Music
       Rewinding, //Music
-      ConfirError, //Audio
+      ConfigError, //Audio
       CodecClosed,//Audio
-      _44800,//Audio
-      _44100,//Audio
-      _32000,//Audio
-      _16000,//Audio
+      ASR_44800,//Audio
+      ASR_44100,//Audio
+      ASR_32000,//Audio
+      ASR_16000,//Audio
       PhoneCall,
       Listening,
       PhoneHangUp,
@@ -188,11 +188,10 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint16_t CallState = Disconnected;
     uint16_t MusicState = Idle;
     uint16_t PowerState = Off;
-    uint16_t ASR;
     uint16_t Audio;
-    uint16_t PhoneState;
     uint16_t AutoAnswer=Off;
     uint16_t AutoConnect=Off;
+    uint8_t volume;
 
     String CallerID;
     String BT_ADDR;
@@ -244,8 +243,8 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t autoconnDisable();
     uint8_t avSourceConnect();
     uint8_t avSourceDisconnect();
-    uint8_t changeLocalName(String name);
-    uint8_t changePin(String pin);
+    uint8_t changeLocalName(String name = ""); //without parameter module should return actual name, did not work for me
+    uint8_t changePin(String pin = ""); //without parameter module should return actual pin, did not work for me
     uint8_t queryAvrcpStatus();
     uint8_t autoAnswerEnable();
     uint8_t autoAnswerDisable();
@@ -254,7 +253,7 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t musicStopFFRWD();
     uint8_t queryA2DPStatus();
     uint8_t writeToMemory(String data);
-    uint8_t readToMemory(String addr);
+    uint8_t readFromMemory(String addr);
     uint8_t switchDevices();
     uint8_t queryVersion();
     uint8_t pbSyncBySim();

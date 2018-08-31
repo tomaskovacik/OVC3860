@@ -11,23 +11,38 @@
 #include <SoftwareSerial.h>
 
 uint16_t BTState;
+uint16_t AVRCPState;
+uint16_t A2DPState;
+uint16_t HFPState;
 uint16_t CallState;
 uint16_t MusicState;
 uint16_t PowerState;
-uint16_t ASR;
 uint16_t Audio;
-uint16_t PhoneState;
 uint16_t AutoConnect;
 uint16_t AutoAnswer;
+uint8_t volume;
 
 SoftwareSerial swSerial(7, 6); //rxPin, txPin, inverse_logic
 
 OVC3860 BT(&swSerial, 5);
 
+void printAudio();
+void printBTState();
+void printCallState();
+void printMusicState();
+void printPowerState();
+void printAutoConnect();
+void printAutoAnswer();
+void printAVRCPState();
+void printA2DPState();
+void printHFPState();
+void getInitStates();
+
 void setup() {
   BT.begin(115200);
   Serial.begin(115200);
   Serial.println(F("press h for help"));
+  getInitStates();
 }
 
 void loop() {
@@ -278,7 +293,7 @@ void loop() {
               c = Serial.read();
               str += c;
             }
-            BT.readToMemory(str);
+            BT.readFromMemory(str);
           }
           break;
         case 'G':
@@ -430,96 +445,286 @@ void loop() {
           break;
         case 'b':
           BT.readBaudRate();
-        break;
+          break;
         case 'B':
-        {
-          delay(100);
-        switch (Serial.read()){
-          case OVC3860_BAUDRATE_1200:
-            BT.writeBaudRate(OVC3860_BAUDRATE_1200);
+          {
+            delay(100);
+            switch (Serial.read()) {
+              case OVC3860_BAUDRATE_1200:
+                BT.writeBaudRate(OVC3860_BAUDRATE_1200);
+                break;
+              case OVC3860_BAUDRATE_2400:
+                BT.writeBaudRate(OVC3860_BAUDRATE_2400);
+                break;
+              case OVC3860_BAUDRATE_4800:
+                BT.writeBaudRate(OVC3860_BAUDRATE_4800);
+                break;
+              case OVC3860_BAUDRATE_9600:
+                BT.writeBaudRate(OVC3860_BAUDRATE_9600);
+                break;
+              case OVC3860_BAUDRATE_14400:
+                BT.writeBaudRate(OVC3860_BAUDRATE_14400);
+                break;
+              case OVC3860_BAUDRATE_19200:
+                BT.writeBaudRate(OVC3860_BAUDRATE_19200);
+                break;
+              case OVC3860_BAUDRATE_38400:
+                BT.writeBaudRate(OVC3860_BAUDRATE_38400);
+                break;
+              case OVC3860_BAUDRATE_57600:
+                BT.writeBaudRate(OVC3860_BAUDRATE_57600);
+                break;
+              case OVC3860_BAUDRATE_115200:
+                BT.writeBaudRate(OVC3860_BAUDRATE_115200);
+                break;
+              case OVC3860_BAUDRATE_230400:
+                BT.writeBaudRate(OVC3860_BAUDRATE_230400);
+                break;
+              case OVC3860_BAUDRATE_460800:
+                BT.writeBaudRate(OVC3860_BAUDRATE_460800);
+                break;
+              case OVC3860_BAUDRATE_921600:
+                BT.writeBaudRate(OVC3860_BAUDRATE_921600);
+                break;
+            }
+          }
           break;
-          case OVC3860_BAUDRATE_2400:
-            BT.writeBaudRate(OVC3860_BAUDRATE_2400);
-          break;
-          case OVC3860_BAUDRATE_4800:
-            BT.writeBaudRate(OVC3860_BAUDRATE_4800);
-          break;
-          case OVC3860_BAUDRATE_9600:
-            BT.writeBaudRate(OVC3860_BAUDRATE_9600);
-          break;
-          case OVC3860_BAUDRATE_14400:
-            BT.writeBaudRate(OVC3860_BAUDRATE_14400);
-          break;
-          case OVC3860_BAUDRATE_19200:
-            BT.writeBaudRate(OVC3860_BAUDRATE_19200);
-          break;
-          case OVC3860_BAUDRATE_38400:
-            BT.writeBaudRate(OVC3860_BAUDRATE_38400);
-          break;
-          case OVC3860_BAUDRATE_57600:
-            BT.writeBaudRate(OVC3860_BAUDRATE_57600);
-          break;
-          case OVC3860_BAUDRATE_115200:
-            BT.writeBaudRate(OVC3860_BAUDRATE_115200);
-          break;
-          case OVC3860_BAUDRATE_230400:
-            BT.writeBaudRate(OVC3860_BAUDRATE_230400);
-          break;
-          case OVC3860_BAUDRATE_460800:
-            BT.writeBaudRate(OVC3860_BAUDRATE_460800);
-          break;
-          case OVC3860_BAUDRATE_921600:
-            BT.writeBaudRate(OVC3860_BAUDRATE_921600);
-          break;
-        }
-        }
-        break;
       }
     }
   }
 
   BT.getNextEventFromBT();
 
-  if (AutoAnswer != BT.AutoAnswer) {
-    switch (BT.AutoAnswer) {
-      case BT.On:
-        Serial.println(F("Auto answer On"));
-        break;
-      case BT.Off:
-        Serial.println(F("Auto answer Off"));
-        break;
-    }
-    AutoAnswer = BT.AutoAnswer;
-  }
-
-  if (AutoConnect != BT.AutoConnect) {
-    switch (BT.AutoConnect) {
-      case BT.On:
-        Serial.println(F("Auto connect On"));
-        break;
-      case BT.Off:
-        Serial.println(F("Auto connect Off"));
-        break;
-    }
-    AutoConnect = BT.AutoConnect;
-  }
-
   if (BTState != BT.BTState) {
-    switch (BT.BTState) {
-      case BT.On:
-        Serial.println(F("BT On"));
-        break;
-      case BT.Off:
-        Serial.println(F("BT Off"));
-        break;
-      case BT.ConfigMode:
-        Serial.println(F("BT Config Mode"));
-        break;
-    }
+    printBTState();
     BTState = BT.BTState;
   }
 
+  if (CallState != BT.CallState) {
+    printCallState();
+    CallState = BT.CallState;
+  }
+
+  if (MusicState != BT.MusicState) {
+    printMusicState();
+    MusicState = BT.MusicState;
+  }
+
+  if (PowerState != BT.PowerState) {
+    printPowerState();
+    PowerState = BT.PowerState;
+  }
+
+  if (Audio != BT.Audio) {
+    printAudio();
+    Audio = BT.Audio;
+  }
+
+  if (AutoConnect != BT.AutoConnect) {
+    printAutoConnect();
+    AutoConnect = BT.AutoConnect;
+  }
+
+  if (AutoAnswer != BT.AutoAnswer) {
+    printAutoAnswer();
+    AutoAnswer = BT.AutoAnswer;
+  }
+
+  if (HFPState != BT.HFPState) {
+    printHFPState();
+    HFPState = BT.HFPState;
+  }
+
+  if (A2DPState != BT.A2DPState) {
+    printA2DPState();
+    A2DPState = BT.A2DPState;
+  }
+
+  if (AVRCPState != BT.AVRCPState) {
+    printAVRCPState();
+    AVRCPState = BT.AVRCPState;
+  }
+
+  if (volume != BT.volume) {
+    Serial.print("Volume: ");Serial.println(BT.volume);
+    volume = BT.volume;
+  }
+}
+
+void getInitStates() {
+  BT.queryConfiguration();
+  BT.queryHFPStatus();
+  BT.queryA2DPStatus();
 }
 
 
+void printHFPState() {
+  switch (BT.HFPState) {
+    case BT.Ready:
+      Serial.println(F("HFP Ready"));
+      break;
+    case BT.Connecting:
+      Serial.println(F("HFP Connecting"));
+      break;
+    case BT.Connected:
+      Serial.println(F("HFP Connected"));
+      break;
+    case BT.OutgoingCall:
+      Serial.println(F("HFP OutgoingCall"));
+      break;
+    case BT.IncomingCall:
+      Serial.println(F("HFP IncomingCall"));
+      break;
+    case BT.OngoingCall:
+      Serial.println(F("HFP OngoingCall"));
+      break;
+    case BT.Disconnected:
+      Serial.println(F("HFP Disconnected"));
+      break;
+  }
+}
+
+void printA2DPState() {
+  switch (BT.A2DPState) {
+    case BT.Ready:
+      Serial.println(F("A2DP ready"));
+      break;
+    case BT.Initializing:
+      Serial.println(F("A2DP initializing"));
+      break;
+    case BT.SignallingActive:
+      Serial.println(F("A2DP signalling active"));
+      break;
+    case BT.Connected:
+      Serial.println(F("A2DP connected"));
+      break;
+    case BT.Streaming:
+      Serial.println(F("A2DP streaming"));
+      break;
+  }
+}
+
+void printAVRCPState() {
+  switch (BT.AVRCPState) {
+    case BT.Ready:
+      Serial.println(F("AVRCP Ready"));
+      break;
+    case BT.Connecting:
+      Serial.println(F("AVRCP Connecting"));
+      break;
+    case BT.Connected:
+      Serial.println(F("AVRCP Connected"));
+      break;
+  }
+}
+
+void printAutoConnect() {
+  switch (BT.AutoConnect) {
+    case BT.On:
+      Serial.println(F("AutoConnect On"));
+      break;
+    case BT.Off:
+      Serial.println(F("AutoConnect Off"));
+      break;
+  }
+}
+
+void printAudio() {
+  switch (BT.Audio) {
+    case BT.ConfigError:
+      Serial.println(F("Audio: config error"));
+      break;
+    case BT.CodecClosed:
+      Serial.println(F("Audio: codec closed"));
+      break;
+    case BT.ASR_44800:
+      Serial.println(F("Audio: 44800kHz"));
+      break;
+    case BT.ASR_44100:
+      Serial.println(F("Audio: 44100kHz"));
+      break;
+    case BT.ASR_32000:
+      Serial.println(F("Audio: 32000kHz"));
+      break;
+    case BT.ASR_16000:
+      Serial.println(F("Audio: 16000kHz"));
+      break;
+  }
+}
+
+void printBTState() {
+  switch (BT.BTState) {
+    case BT.Disconnected:
+      Serial.println(F("BT Disconnected"));
+      break;
+    case BT.Connected:
+      Serial.println(F("BT Connected"));
+      break;
+    case BT.SPPopened:
+      Serial.println(F("BT SPP opened"));
+      break;
+    case BT.SPPclosed:
+      Serial.println(F("BT SPP closed"));
+      break;
+    case BT.Discoverable:
+      Serial.println(F("BT Discoverable"));
+      break;
+  }
+}
+
+void printAutoAnswer() {
+  switch (BT.AutoAnswer) {
+    case BT.On:
+      Serial.println(F("Auto answer On"));
+      break;
+    case BT.Off:
+      Serial.println(F("Auto answer Off"));
+      break;
+  }
+}
+
+void printCallState() {
+  switch (BT.CallState) {
+    case BT.Idle:
+      Serial.println(F("Call: Idle"));
+      break;
+    case BT.OutgoingCall:
+      Serial.println(F("Call: outgoing call"));
+      break;
+    case BT.IncomingCall:
+      Serial.println(F("Call: incoming call"));
+      break;
+    case BT.OngoingCall:
+      Serial.println(F("Call: ongoing call"));
+      break;
+  }
+}
+
+void printMusicState() {
+  switch (BT.MusicState) {
+    case BT.Playing:
+      Serial.println(F("Music playing."));
+      break;
+    case BT.FastForwarding:
+      Serial.println(F("Music fast forwarding."));
+      break;
+    case BT.Rewinding:
+      Serial.println(F("Music rewinding."));
+      break;
+    case BT.Idle:
+      Serial.println(F("Music stoped/paused."));
+      break;
+  }
+}
+
+void printPowerState() {
+  switch (BT.PowerState) {
+    case BT.On:
+      Serial.println(F("Auto connect On"));
+      break;
+    case BT.Off:
+      Serial.println(F("Auto connect Off"));
+      break;
+  }
+}
 

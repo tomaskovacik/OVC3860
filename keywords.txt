@@ -43,7 +43,7 @@ musicStartRWD	KEYWORD2
 musicStopFFRWD	KEYWORD2
 queryA2DPStatus	KEYWORD2
 writeToMemory	KEYWORD2
-readToMemory	KEYWORD2
+readFromMemory	KEYWORD2
 switchDevices	KEYWORD2
 queryVersion	KEYWORD2
 pbSyncBySim	KEYWORD2
@@ -129,3 +129,4 @@ SPPclosed	LITERAL1
 Discoverable	LITERAL1
 Disconnected	LITERAL1
 ConfigMode	LITERAL1
+volume	LITERAL1
