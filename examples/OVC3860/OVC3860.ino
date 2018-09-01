@@ -39,7 +39,7 @@ void printHFPState();
 void getInitStates();
 
 void setup() {
-  BT.begin(115200);
+  BT.begin();
   Serial.begin(115200);
   Serial.println(F("press h for help"));
   getInitStates();
@@ -146,7 +146,7 @@ void loop() {
           Serial.println(F("Music: stop ff/rwd           C"));
           Serial.println(F("Query A2DP Status            D"));
           Serial.println(F("Write to memor  E+addr(4B)_hex"));
-          Serial.println(F("Read to memory      F+addr(4B)"));
+          Serial.println(F("Read from memory    F+addr(4B)"));
           Serial.println(F("Switch devices               G"));
           Serial.println(F("Query Version                H"));
           Serial.println(F("Sync phonebook by sim        I"));
@@ -195,7 +195,7 @@ void loop() {
           BT.queryHFPStatus();
           break;
         case 'l':
-          BT.resetModule();
+          BT.reset();
           break;
         case 'm':
           BT.musicTogglePlayPause();
@@ -463,40 +463,41 @@ void loop() {
           {
             delay(100);
             switch (Serial.read()) {
-              case OVC3860_BAUDRATE_1200:
+              case '0':
                 BT.writeBaudRate(OVC3860_BAUDRATE_1200);
                 break;
-              case OVC3860_BAUDRATE_2400:
+              case '1':
                 BT.writeBaudRate(OVC3860_BAUDRATE_2400);
                 break;
-              case OVC3860_BAUDRATE_4800:
+              case '2':
                 BT.writeBaudRate(OVC3860_BAUDRATE_4800);
                 break;
-              case OVC3860_BAUDRATE_9600:
+              case '3':
                 BT.writeBaudRate(OVC3860_BAUDRATE_9600);
                 break;
-              case OVC3860_BAUDRATE_14400:
+              case '4':
                 BT.writeBaudRate(OVC3860_BAUDRATE_14400);
                 break;
-              case OVC3860_BAUDRATE_19200:
+              case '5':
                 BT.writeBaudRate(OVC3860_BAUDRATE_19200);
                 break;
-              case OVC3860_BAUDRATE_38400:
+              case '6':
                 BT.writeBaudRate(OVC3860_BAUDRATE_38400);
                 break;
-              case OVC3860_BAUDRATE_57600:
+              case '7':
                 BT.writeBaudRate(OVC3860_BAUDRATE_57600);
                 break;
-              case OVC3860_BAUDRATE_115200:
+              case '8':
                 BT.writeBaudRate(OVC3860_BAUDRATE_115200);
                 break;
-              case OVC3860_BAUDRATE_230400:
+              case '9':
                 BT.writeBaudRate(OVC3860_BAUDRATE_230400);
                 break;
-              case OVC3860_BAUDRATE_460800:
+              case 'A':
                 BT.writeBaudRate(OVC3860_BAUDRATE_460800);
                 break;
-              case OVC3860_BAUDRATE_921600:
+              case 'B'
+              :
                 BT.writeBaudRate(OVC3860_BAUDRATE_921600);
                 break;
             }

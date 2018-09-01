@@ -48,7 +48,8 @@ OVC3860::~OVC3860() {
 }
 
 void OVC3860::begin(uint32_t baudrate) {
-  btSerial->begin(baudrate);
+  _baudrate = baudrate;
+  btSerial->begin(_baudrate);
   pinMode(_reset, OUTPUT);
   OVC3860::resetHigh();
 }
@@ -212,7 +213,7 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
     switch (receivedString[2]) {
       case '0':
         AutoAnswer = Off;
-      //  DBG("AA OFF");
+        //  DBG("AA OFF");
         break;
       case '1':
         AutoAnswer = On;
@@ -407,9 +408,14 @@ uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
     sendRawData(4, Data);
   }
   BTState = Disconnected;
+  btSerial -> end(); // end comunication in 115200b for config mode
+  btSerial -> begin(_baudrate); //restor user set baudrate
 }
 
 uint8_t OVC3860::enterConfigMode() {
+
+  btSerial -> end(); //end costum baudrate comunication
+  btSerial -> begin(115200); //initialize comunication in 115200b for config mode
 
   uint8_t initConfigData[9] = {0xC5, 0xC7, 0xC7, 0xC9, 0xD0, 0xD7, 0xC9, 0xD1, 0xCD};
 
@@ -429,7 +435,7 @@ uint8_t OVC3860::enterConfigMode() {
 
   if (btSerial -> available()) {
     if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x01 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
-      //DBG(F("Config mode"));
+      DBG(F("Config mode!\n"));
       BTState = ConfigMode;
     }
     else
@@ -453,7 +459,7 @@ uint8_t OVC3860::readMode() {
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG(F("Reading name\n"));
+    DBG(F("Reading mode \n"));
     uint8_t Data[4] = {0x10, 0x07, 0x00, 0x01};
     sendRawData(4, Data);
   }
@@ -464,7 +470,7 @@ uint8_t OVC3860::readClassOfDevice() {
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG(F("Reading name\n"));
+    DBG(F("Reading class of device:\n"));
     uint8_t Data[4] = {0x10, 36, 0x00, 0x03};
     sendRawData(4, Data);
   }
@@ -475,8 +481,8 @@ uint8_t OVC3860::writeClassOfDevice() {
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG(F("Reading name\n"));
-    uint8_t Data[7] = {0x30, 36, 0x00, 0x03, 0x04,0x04,0x24};
+    DBG(F("Reading class of device: 0x24 0x04 0x14\n"));
+    uint8_t Data[7] = {0x30, 36, 0x00, 0x03, 0x14, 0x04, 0x24};
     sendRawData(7, Data);
   }
   OVC3860::getNextEventFromBT();
@@ -490,7 +496,9 @@ uint8_t OVC3860::writeName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
       DBG(F("name to long, max 16chars\n"));
       return false;
     } else {
-      DBG(F("Writing name\n"));
+      DBG(F("Writing name:"));
+      DBG(NewName);
+      DBG(F("\n"));
       uint8_t Data[20] = {0x31, 0xc7, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
       for (uint8_t i = 0; i < NewName.length() - 2; i++) {
         Data[i + 4] = NewName[i];
@@ -531,7 +539,9 @@ uint8_t OVC3860::writePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
       DBG(F("name to long, max 8 chars"));
       return false;
     } else {
-      DBG(F("Writing name\n"));
+      DBG(F("Writing pin: "));
+      DBG(NewPin);
+      DBG(F("\n"));
       uint8_t Data[12] = {0x31, 0xBF, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
       for (uint8_t i = 0; i < NewPin.length() - 2; i++) {
         Data[i + 4] = NewPin[i];
@@ -546,7 +556,7 @@ uint8_t OVC3860::readBaudRate() {
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG(F("Reading Pin\n"));
+    DBG(F("Reading baudrate\n"));
     uint8_t Data[4] = {0x10, 0x11, 0x00, 0x01};
     sendRawData(4, Data);
   }
@@ -557,8 +567,8 @@ uint8_t OVC3860::writeBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00
   if (BTState != ConfigMode) {
     return false;
   } else {
-    DBG(F("Writing name\n"));
-    uint8_t Data[5] = {0x31, 0x11, 0x00, 0x01, NewBaudRate};
+    DBG(F("Writing baudrate\n"));
+    uint8_t Data[5] = {0x30, 0x11, 0x00, 0x01, NewBaudRate};
     sendRawData(5, Data);
   }
   OVC3860::getNextEventFromBT();
@@ -590,8 +600,8 @@ uint8_t OVC3860::getNextEventFromBT() {
 
       uint8_t startByte = btSerial -> read();
 
-      switch (startByte) {
-        case  0x21:
+      switch (startByte >> 4) {
+        case 0x2: //response to read
           {
             uint8_t addressByte = btSerial -> read();
             uint8_t packetSize1 = btSerial -> read();
@@ -618,39 +628,24 @@ uint8_t OVC3860::getNextEventFromBT() {
                 DBG(String(data[i], HEX));
               }
             }
+            DBG(F("\n"));
 
             OVC3860::decodeReceivedDataArray(data);
           }
           break;
-        case 0x20:
+        case 0x4: //response to write, send only 4bytes,
           {
             uint8_t addressByte = btSerial -> read();
             uint8_t packetSize1 = btSerial -> read();
             uint8_t packetSize2 = btSerial -> read();
-
-            uint16_t packetSize = ((packetSize1 << 8) | (packetSize2 & 0xff)); //+ (start,address, packetsize1 and packetsize2)
-            packetSize += 4;
-
-            uint8_t data[packetSize];
-
-            data[0] = startByte;
-            data[1] = addressByte;
-            data[2] = packetSize1;
-            data[3] = packetSize2;
-
-            for (uint16_t i = 4; i < packetSize; i++) {
-              data[i] = btSerial -> read();
-            }
-
+            
             DBG(F("received raw data: "));
-
-            if (DEBUG) {
-              for (uint16_t i = 0; i < packetSize; i++) {
-                DBG(String(data[i], HEX));
-              }
-            }
-
-            OVC3860::decodeReceivedDataArray(data);
+            
+            DBG(String(startByte,HEX));
+            DBG(String(addressByte,HEX));
+            DBG(String(packetSize1,HEX));
+            DBG(String(packetSize2,HEX));
+            DBG(F("\n"));
           }
           break;
         default:

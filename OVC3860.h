@@ -295,6 +295,7 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     void resetModule();
 
   private:
+    uint16_t _baudrate;
     uint8_t _reset;
     uint8_t decodeReceivedString(String receivedString);
     uint8_t decodeReceivedDataArray(uint8_t data[]);
