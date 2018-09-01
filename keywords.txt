@@ -31,8 +31,8 @@ musicPreviousTrack	KEYWORD2
 queryConfiguration	KEYWORD2
 autoconnEnable	KEYWORD2
 autoconnDisable	KEYWORD2
-avSourceConnect	KEYWORD2
-avSourceDisconnect	KEYWORD2
+connectA2DP	KEYWORD2
+disconnectA2DP	KEYWORD2
 changeLocalName	KEYWORD2
 changePin	KEYWORD2
 queryAvrcpStatus	KEYWORD2
@@ -80,6 +80,8 @@ writePin	KEYWORD2
 readBaudRate	KEYWORD2
 writeBaudRate	KEYWORD2
 resetModule	KEYWORD2
+readClassOfDevice	KEYWORD2
+writeClassOfDevice	KEYWORD2
 
 BTState	LITERAL1
 HFPState	LITERAL1
