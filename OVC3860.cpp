@@ -413,34 +413,35 @@ uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
 }
 
 uint8_t OVC3860::enterConfigMode() {
+  while (BTState != ConfigMode) {
+    btSerial -> end(); //end costum baudrate comunication
+    btSerial -> begin(115200); //initialize comunication in 115200b for config mode
 
-  btSerial -> end(); //end costum baudrate comunication
-  btSerial -> begin(115200); //initialize comunication in 115200b for config mode
+    uint8_t initConfigData[9] = {0xC5, 0xC7, 0xC7, 0xC9, 0xD0, 0xD7, 0xC9, 0xD1, 0xCD};
 
-  uint8_t initConfigData[9] = {0xC5, 0xC7, 0xC7, 0xC9, 0xD0, 0xD7, 0xC9, 0xD1, 0xCD};
+    OVC3860::resetModule();
 
-  OVC3860::resetModule();
+    while (!btSerial -> available()) {}
 
-  while (!btSerial -> available()) {}
-
-  if (btSerial -> available()) {
-    if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x00 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
-      sendRawData(9, initConfigData);
-    }
-  }
-  else
-    return false;
-
-  while (!btSerial -> available()) {}
-
-  if (btSerial -> available()) {
-    if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x01 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
-      DBG(F("Config mode!\n"));
-      BTState = ConfigMode;
+    if (btSerial -> available()) {
+      if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x00 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
+        sendRawData(9, initConfigData);
+      }
     }
     else
       return false;
 
+    while (!btSerial -> available()) {}
+
+    if (btSerial -> available()) {
+      if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x01 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
+        DBG(F("Config mode!\n"));
+        BTState = ConfigMode;
+      }
+      else
+        return false;
+    }
+    delay(1000);
   }
 }
 
@@ -638,13 +639,13 @@ uint8_t OVC3860::getNextEventFromBT() {
             uint8_t addressByte = btSerial -> read();
             uint8_t packetSize1 = btSerial -> read();
             uint8_t packetSize2 = btSerial -> read();
-            
+
             DBG(F("received raw data: "));
-            
-            DBG(String(startByte,HEX));
-            DBG(String(addressByte,HEX));
-            DBG(String(packetSize1,HEX));
-            DBG(String(packetSize2,HEX));
+
+            DBG(String(startByte, HEX));
+            DBG(String(addressByte, HEX));
+            DBG(String(packetSize1, HEX));
+            DBG(String(packetSize2, HEX));
             DBG(F("\n"));
           }
           break;
