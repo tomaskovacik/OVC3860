@@ -26,9 +26,11 @@
 #define OVC3860_h
 #include <Arduino.h>
 
-//#define USE_SW_SERIAL
+#define USE_SW_SERIAL
 
 #define DEBUG 0
+
+#define USE_PSKCONFIG
 
 //cmds definitions:
 #define OVC3860_PAIRING_INIT "CA" /* discoverable for 2 minutes */

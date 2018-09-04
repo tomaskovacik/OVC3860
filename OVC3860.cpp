@@ -387,6 +387,7 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
 }
 
 uint8_t OVC3860::sendRawData(uint8_t _size, uint8_t _data[]) {
+#if defined(USE_PSKCONFIG)
   for (uint8_t i = 0; i < _size; i++ ) {
     btSerial -> write(_data[i]);
   }
@@ -396,9 +397,11 @@ uint8_t OVC3860::sendRawData(uint8_t _size, uint8_t _data[]) {
     DBG(String(_data[i], HEX));
   }
   DBG(F("\n"));
+#endif
 }
 
 uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -411,9 +414,11 @@ uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
     delay(100);
     btSerial -> begin(_baudrate); //restor user set bauMrate
   }
+#endif
 }
 
 uint8_t OVC3860::enterConfigMode() {
+#if defined(USE_PSKCONFIG)
   while (BTState != ConfigMode) {
     btSerial -> end(); //end costum baudrate comunication
     delay(100);
@@ -442,9 +447,11 @@ uint8_t OVC3860::enterConfigMode() {
 
     delay(1000);
   }
+#endif
 }
 
 uint8_t OVC3860::readName() {
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -453,9 +460,11 @@ uint8_t OVC3860::readName() {
     sendRawData(4, Data);
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 uint8_t OVC3860::readMode() {
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -464,9 +473,11 @@ uint8_t OVC3860::readMode() {
     sendRawData(4, Data);
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 uint8_t OVC3860::readClassOfDevice() {
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -475,9 +486,11 @@ uint8_t OVC3860::readClassOfDevice() {
     sendRawData(4, Data);
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 uint8_t OVC3860::writeClassOfDevice() {
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -486,9 +499,11 @@ uint8_t OVC3860::writeClassOfDevice() {
     sendRawData(7, Data);
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 uint8_t OVC3860::writeName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -507,9 +522,11 @@ uint8_t OVC3860::writeName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
     }
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 uint8_t OVC3860::readAllPSK() {
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -518,9 +535,11 @@ uint8_t OVC3860::readAllPSK() {
     sendRawData(4, Data);
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 uint8_t OVC3860::readPin() {
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -529,9 +548,12 @@ uint8_t OVC3860::readPin() {
     sendRawData(4, Data);
   }
   OVC3860::getNextEventFromBT();
+#else
+#endif
 }
 
 uint8_t OVC3860::writePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -550,9 +572,11 @@ uint8_t OVC3860::writePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
     }
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 uint8_t OVC3860::readBaudRate() {
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -561,9 +585,11 @@ uint8_t OVC3860::readBaudRate() {
     sendRawData(4, Data);
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 uint8_t OVC3860::writeBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00,0x10
+#if defined(USE_PSKCONFIG)
   if (BTState != ConfigMode) {
     return false;
   } else {
@@ -572,28 +598,34 @@ uint8_t OVC3860::writeBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00
     sendRawData(5, Data);
   }
   OVC3860::getNextEventFromBT();
+#endif
 }
 
 String OVC3860::returnBtModuleName(String receivedString) {
+#if defined(USE_PSKCONFIG)
   DBG(F("Bluetooth module name: "));
   DBG(receivedString.substring(4));
   DBG(F("\n"));
   return receivedString.substring(4);
+#endif
 }
 
 uint8_t OVC3860::decodeReceivedDataArray(uint8_t data[]) {
+#if defined(USE_PSKCONFIG)
   uint16_t packetSize = ((data[2] << 8) | (data[3] & 0xff)); //+ (start,address, packetsize1 and packetsize2)
   packetSize += 4;
 
   for (uint16_t i = 0; i < packetSize; i++) {
     Serial.print(data[i], HEX); Serial.print(" "); Serial.write(data[i]); Serial.println();
   }
+#endif
 }
+
 
 uint8_t OVC3860::getNextEventFromBT() {
 
   delay(100);
-
+#if defined(USE_PSKCONFIG)
   if (BTState == ConfigMode) {
 
     if (btSerial -> available()) {
@@ -672,7 +704,7 @@ uint8_t OVC3860::getNextEventFromBT() {
     }
 
   } else {
-
+#endif
     char c;
     String receivedString = "";
 
@@ -692,7 +724,9 @@ uint8_t OVC3860::getNextEventFromBT() {
       //append received buffer with received character
       receivedString = receivedString + c;  // cose += c did not work ...
     }
+#if defined(USE_PSKCONFIG)
   }
+#endif
   return 0;
 }
 
@@ -1582,7 +1616,17 @@ uint8_t OVC3860::disconnectA2DP() {
 uint8_t OVC3860::changeLocalName(String name) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CHANGE_LOCAL_NAME + name);
-  OVC3860::getNextEventFromBT();
+  if (!OVC3860::getNextEventFromBT()) {
+#if defined(USE_PSKCONFIG)
+    OVC3860::enterConfigMode();
+    OVC3860::writeName(name);
+    // OVC3860::readName();
+    OVC3860::quitConfigMode();
+    return true;
+#endif
+    return false;
+  }
+  return true;
 }
 
 /*
@@ -1613,10 +1657,19 @@ uint8_t OVC3860::changeLocalName(String name) {
   AT#MN1234 :the new pin is :1234
   AT#MN :indication will be MP<current pin>
 */
-uint8_t OVC3860::changePin(String pin) {
+uint8_t OVC3860:: q(String pin) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CHANGE_PIN + pin);
-  OVC3860::getNextEventFromBT();
+  if (!OVC3860::getNextEventFromBT()) {
+#if defined(USE_PSKCONFIG)
+    OVC3860::enterConfigMode();
+    OVC3860::writePin(pin);
+    //OVC3860::readPin();
+    OVC3860::quitConfigMode();
+    return true;
+#endif
+    return false;
+  }
 }
 
 /*

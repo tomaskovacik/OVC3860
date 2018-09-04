@@ -37,12 +37,14 @@ void printAVRCPState();
 void printA2DPState();
 void printHFPState();
 void getInitStates();
+void printHelp();
 
 void setup() {
   BT.begin();
   Serial.begin(115200);
   Serial.println(F("press h for help"));
   getInitStates();
+  printHelp();
 }
 
 void loop() {
@@ -105,76 +107,7 @@ void loop() {
           BT.pairingDeleteThenInit();
           break;
         case 'h': //help
-          Serial.println(F("Pairing Init                 1"));
-          Serial.println(F("Pairing Exit                 2"));
-          Serial.println(F("Connect HSHF                 3"));
-          Serial.println(F("Disconnect HSHF              4"));
-          Serial.println(F("Call Answare                 5"));
-          Serial.println(F("Call Reject                  6"));
-          Serial.println(F("Call HangUp                  7"));
-          Serial.println(F("Call Redial                  8"));
-          Serial.println(F("Voice Call Start             9"));
-          Serial.println(F("Voice Call Cancel            0"));
-          Serial.println(F("MicToggle                    a"));
-          Serial.println(F("Transfer audio to/from BT    b"));
-          Serial.println(F("Call release and reject      c"));
-          Serial.println(F("Call release and accept      d"));
-          Serial.println(F("Call hold and accept         e"));
-          Serial.println(F("Start conference call        f"));
-          Serial.println(F("Pairing Delete Then Init     g"));
-          Serial.println(F("Print this help              h"));
-          Serial.println(F("Call dial number         i+num"));
-          Serial.println(F("Send DTMF                    j"));
-          Serial.println(F("Query HFP status             k"));
-          Serial.println(F("Reset                        l"));
-          Serial.println(F("Music: toggle play/pause     m"));
-          Serial.println(F("Music: stop                  n"));
-          Serial.println(F("Music: next track            o"));
-          Serial.println(F("Music: previous track        p"));
-          Serial.println(F("Query configuration          q"));
-          Serial.println(F("Enable auto connect          r"));
-          Serial.println(F("Disable auto connect         s"));
-          Serial.println(F("Connect audio(A2DP) source   t"));
-          Serial.println(F("Disconnect audio(A2DP)source u"));
-          Serial.println(F("Change local name       v+name"));
-          Serial.println(F("Change pin               w+pin"));
-          Serial.println(F("Query AVRCP status           x"));
-          Serial.println(F("Enable auto answer           y"));
-          Serial.println(F("Disable auto answer          z"));
-          Serial.println(F("Music start fast forward     A"));
-          Serial.println(F("Music: start rewind          B"));
-          Serial.println(F("Music: stop ff/rwd           C"));
-          Serial.println(F("Query A2DP Status            D"));
-          Serial.println(F("Write to memor  E+addr(4B)_hex"));
-          Serial.println(F("Read from memory    F+addr(4B)"));
-          Serial.println(F("Switch devices               G"));
-          Serial.println(F("Query Version                H"));
-          Serial.println(F("Sync phonebook by sim        I"));
-          Serial.println(F("Sync phonebook by phone      J"));
-          Serial.println(F("Read phonebook next item     K"));
-          Serial.println(F("Read phonebook previous item L"));
-          Serial.println(F("Phonebook sync by dialer     M"));
-          Serial.println(F("Phonebook sync by receiver   N"));
-          Serial.println(F("Phonebook sync by missed     O"));
-          Serial.println(F("Phonebook sync by last call  P"));
-          Serial.println(F("Get local last dialed list   Q"));
-          Serial.println(F("Get local last received list R"));
-          Serial.println(F("Get local last missed list   S"));
-          Serial.println(F("Dial last received call      T"));
-          Serial.println(F("Clear local call history     U"));
-          Serial.println(F("SPP data transmit            V"));
-          Serial.println(F("Set clockdebug mode          W"));
-          Serial.println(F("Volume down                  X"));
-          Serial.println(F("Enter test mode              Y"));
-          Serial.println(F("Set fixed frequency          Z"));
-          Serial.println(F("EMC test mode                ="));
-          Serial.println(F("Set RF register              -"));
-          Serial.println(F("Start inquiry device         ]"));
-          Serial.println(F("Stop inquiry device          ["));
-          Serial.println(F("Volume up                    ;"));
-          Serial.println(F("Shutdown module              '"));
-          Serial.println(F("Enter config mode            ."));
-          Serial.println(F("Resetin module(HW way)       ,"));
+          printHelp();
           break;
         case 'i':
           {
@@ -391,35 +324,14 @@ void loop() {
       char c = Serial.read();
       switch (c) {
         case 'h':
-          Serial.println(F("read name               n"));
-          Serial.println(F("write name              N"));
-          Serial.println(F("read pin                p"));
-          Serial.println(F("read all PSKeys         A"));
-          Serial.println(F("quit config mode        q"));
-          Serial.println(F("read baudrate           b"));
-          Serial.println(F("setBaudrate:"));
-          Serial.println(F("         use B0 for 1200b"));
-          Serial.println(F("         use B1 for 2400b"));
-          Serial.println(F("         use B2 for 4800b"));
-          Serial.println(F("         use B3 for 9600b"));
-          Serial.println(F("        use B4 for 14400b"));
-          Serial.println(F("        use B5 for 19200b"));
-          Serial.println(F("        use B6 for 38400b"));
-          Serial.println(F("        use B7 for 57600b"));
-          Serial.println(F("       use B8 for 115200b"));
-          Serial.println(F("       use B9 for 230400b"));
-          Serial.println(F("       use BA for 460800b"));
-          Serial.println(F("       use BB for 921600b"));
-          Serial.println(F("read mode               m"));
-          Serial.println(F("read class of device    c"));
-          Serial.println(F("write class of device   C"));
+          printHelp();
           break;
         case 'c':
           BT.readClassOfDevice();
-        break;
+          break;
         case 'C':
           BT.writeClassOfDevice();
-        break;
+          break;
         case 'n':
           BT.readName();
           break;
@@ -497,14 +409,14 @@ void loop() {
                 BT.writeBaudRate(OVC3860_BAUDRATE_460800);
                 break;
               case 'B'
-              :
+                  :
                 BT.writeBaudRate(OVC3860_BAUDRATE_921600);
                 break;
             }
           }
           break;
-          case 'm':
-            BT.readMode();
+        case 'm':
+          BT.readMode();
           break;
       }
     }
@@ -563,7 +475,7 @@ void loop() {
   }
 
   if (volume != BT.volume) {
-    Serial.print("Volume: ");Serial.println(BT.volume);
+    Serial.print("Volume: "); Serial.println(BT.volume);
     volume = BT.volume;
   }
 }
@@ -686,8 +598,12 @@ void printBTState() {
     case BT.Discoverable:
       Serial.println(F("BT Discoverable"));
       break;
-      case BT.Listening:
+    case BT.Listening:
       Serial.println(F("BT Listening"));
+      break;
+    case BT.ConfigMode:
+      Serial.println(F("PSKey Coonfig mode"));
+      printHelp();
       break;
   }
 }
@@ -748,3 +664,100 @@ void printPowerState() {
   }
 }
 
+void printHelp() {
+  if (BT.BTState != BT.ConfigMode) {
+    Serial.println(F("Pairing Init                 1"));
+    Serial.println(F("Pairing Exit                 2"));
+    Serial.println(F("Connect HSHF                 3"));
+    Serial.println(F("Disconnect HSHF              4"));
+    Serial.println(F("Call Answare                 5"));
+    Serial.println(F("Call Reject                  6"));
+    Serial.println(F("Call HangUp                  7"));
+    Serial.println(F("Call Redial                  8"));
+    Serial.println(F("Voice Call Start             9"));
+    Serial.println(F("Voice Call Cancel            0"));
+    Serial.println(F("MicToggle                    a"));
+    Serial.println(F("Transfer audio to/from BT    b"));
+    Serial.println(F("Call release and reject      c"));
+    Serial.println(F("Call release and accept      d"));
+    Serial.println(F("Call hold and accept         e"));
+    Serial.println(F("Start conference call        f"));
+    Serial.println(F("Pairing Delete Then Init     g"));
+    Serial.println(F("Print this help              h"));
+    Serial.println(F("Call dial number         i+num"));
+    Serial.println(F("Send DTMF                    j"));
+    Serial.println(F("Query HFP status             k"));
+    Serial.println(F("Reset                        l"));
+    Serial.println(F("Music: toggle play/pause     m"));
+    Serial.println(F("Music: stop                  n"));
+    Serial.println(F("Music: next track            o"));
+    Serial.println(F("Music: previous track        p"));
+    Serial.println(F("Query configuration          q"));
+    Serial.println(F("Enable auto connect          r"));
+    Serial.println(F("Disable auto connect         s"));
+    Serial.println(F("Connect audio(A2DP) source   t"));
+    Serial.println(F("Disconnect audio(A2DP)source u"));
+    Serial.println(F("Change local name       v+name"));
+    Serial.println(F("Change pin               w+pin"));
+    Serial.println(F("Query AVRCP status           x"));
+    Serial.println(F("Enable auto answer           y"));
+    Serial.println(F("Disable auto answer          z"));
+    Serial.println(F("Music start fast forward     A"));
+    Serial.println(F("Music: start rewind          B"));
+    Serial.println(F("Music: stop ff/rwd           C"));
+    Serial.println(F("Query A2DP Status            D"));
+    Serial.println(F("Write to memor  E+addr(4B)_hex"));
+    Serial.println(F("Read from memory    F+addr(4B)"));
+    Serial.println(F("Switch devices               G"));
+    Serial.println(F("Query Version                H"));
+    Serial.println(F("Sync phonebook by sim        I"));
+    Serial.println(F("Sync phonebook by phone      J"));
+    Serial.println(F("Read phonebook next item     K"));
+    Serial.println(F("Read phonebook previous item L"));
+    Serial.println(F("Phonebook sync by dialer     M"));
+    Serial.println(F("Phonebook sync by receiver   N"));
+    Serial.println(F("Phonebook sync by missed     O"));
+    Serial.println(F("Phonebook sync by last call  P"));
+    Serial.println(F("Get local last dialed list   Q"));
+    Serial.println(F("Get local last received list R"));
+    Serial.println(F("Get local last missed list   S"));
+    Serial.println(F("Dial last received call      T"));
+    Serial.println(F("Clear local call history     U"));
+    Serial.println(F("SPP data transmit            V"));
+    Serial.println(F("Set clockdebug mode          W"));
+    Serial.println(F("Volume down                  X"));
+    Serial.println(F("Enter test mode              Y"));
+    Serial.println(F("Set fixed frequency          Z"));
+    Serial.println(F("EMC test mode                ="));
+    Serial.println(F("Set RF register              -"));
+    Serial.println(F("Start inquiry device         ]"));
+    Serial.println(F("Stop inquiry device          ["));
+    Serial.println(F("Volume up                    ;"));
+    Serial.println(F("Shutdown module              '"));
+    Serial.println(F("Enter config mode            ."));
+    Serial.println(F("Resetin module(HW way)       ,"));
+  } else {
+    Serial.println(F("read name               n"));
+    Serial.println(F("write name              N"));
+    Serial.println(F("read pin                p"));
+    Serial.println(F("read all PSKeys         A"));
+    Serial.println(F("quit config mode        q"));
+    Serial.println(F("read baudrate           b"));
+    Serial.println(F("setBaudrate:"));
+    Serial.println(F("         use B0 for 1200b"));
+    Serial.println(F("         use B1 for 2400b"));
+    Serial.println(F("         use B2 for 4800b"));
+    Serial.println(F("         use B3 for 9600b"));
+    Serial.println(F("        use B4 for 14400b"));
+    Serial.println(F("        use B5 for 19200b"));
+    Serial.println(F("        use B6 for 38400b"));
+    Serial.println(F("        use B7 for 57600b"));
+    Serial.println(F("       use B8 for 115200b"));
+    Serial.println(F("       use B9 for 230400b"));
+    Serial.println(F("       use BA for 460800b"));
+    Serial.println(F("       use BB for 921600b"));
+    Serial.println(F("read mode               m"));
+    Serial.println(F("read class of device    c"));
+    Serial.println(F("write class of device   C"));
+  }
+}
