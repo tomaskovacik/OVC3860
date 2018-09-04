@@ -406,10 +406,11 @@ uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
     // OVC3860::ResetModule();
     uint8_t Data[4] = {0x50, 0x00, 0x00, 0x00};
     sendRawData(4, Data);
+    BTState = Disconnected;
+    btSerial -> end(); // end comunication in 115200b for config mode
+    delay(100);
+    btSerial -> begin(_baudrate); //restor user set bauMrate
   }
-  BTState = Disconnected;
-  btSerial -> end(); // end comunication in 115200b for config mode
-  btSerial -> begin(_baudrate); //restor user set baudrate
 }
 
 uint8_t OVC3860::enterConfigMode() {
@@ -638,7 +639,7 @@ uint8_t OVC3860::getNextEventFromBT() {
                 Data[3] = 64;
                 sendRawData(4, Data);
                 delay(100);
-                uint8_t data_i =0;
+                uint8_t data_i = 0;
                 while (btSerial -> available()) {
                   data[data_i++] = btSerial -> read();
                 }
@@ -676,8 +677,9 @@ uint8_t OVC3860::getNextEventFromBT() {
     String receivedString = "";
 
     while (btSerial -> available() > 0) {
+
       c = (btSerial -> read());
-      //DBG(String(c,HEX)); DBG("\n");
+
       if (c == 0xD || c == 0xA) {
         if (receivedString == "") { //nothing before enter was received
           //DBG(F("received only empty string\n running again myself...\n"));

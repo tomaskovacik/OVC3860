@@ -26,9 +26,9 @@
 #define OVC3860_h
 #include <Arduino.h>
 
-#define USE_SW_SERIAL
+//#define USE_SW_SERIAL
 
-#define DEBUG 1
+#define DEBUG 0
 
 //cmds definitions:
 #define OVC3860_PAIRING_INIT "CA" /* discoverable for 2 minutes */
@@ -296,7 +296,7 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     void resetModule();
 
   private:
-    uint16_t _baudrate;
+    uint32_t _baudrate;
     uint8_t _reset;
     uint8_t decodeReceivedString(String receivedString);
     uint8_t decodeReceivedDataArray(uint8_t data[]);
