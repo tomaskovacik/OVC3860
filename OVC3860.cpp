@@ -415,32 +415,30 @@ uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
 uint8_t OVC3860::enterConfigMode() {
   while (BTState != ConfigMode) {
     btSerial -> end(); //end costum baudrate comunication
+    delay(100);
     btSerial -> begin(115200); //initialize comunication in 115200b for config mode
 
     uint8_t initConfigData[9] = {0xC5, 0xC7, 0xC7, 0xC9, 0xD0, 0xD7, 0xC9, 0xD1, 0xCD};
 
     OVC3860::resetModule();
 
-    while (!btSerial -> available()) {}
+    while ((btSerial -> available()) != 7) {} //wait for 7bytes
 
-    if (btSerial -> available()) {
-      if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x00 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
-        sendRawData(9, initConfigData);
-      }
+    if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x00 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
+      sendRawData(9, initConfigData);
     }
     else
       return false;
 
-    while (!btSerial -> available()) {}
+    while ((btSerial -> available()) != 7) {} //wait for 7bytes
 
-    if (btSerial -> available()) {
-      if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x01 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
-        DBG(F("Config mode!\n"));
-        BTState = ConfigMode;
-      }
-      else
-        return false;
+    if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x01 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
+      DBG(F("Config mode!\n"));
+      BTState = ConfigMode;
     }
+    else
+      return false;
+
     delay(1000);
   }
 }
@@ -604,34 +602,49 @@ uint8_t OVC3860::getNextEventFromBT() {
       switch (startByte >> 4) {
         case 0x2: //response to read
           {
+
             uint8_t addressByte = btSerial -> read();
             uint8_t packetSize1 = btSerial -> read();
             uint8_t packetSize2 = btSerial -> read();
 
             uint16_t packetSize = ((packetSize1 << 8) | (packetSize2 & 0xff)); //+ (start,address, packetsize1 and packetsize2)
-            packetSize += 4;
 
-            uint8_t data[packetSize];
+            if (packetSize < 64 - 4) {
+              uint8_t data[packetSize + 4];
 
-            data[0] = startByte;
-            data[1] = addressByte;
-            data[2] = packetSize1;
-            data[3] = packetSize2;
+              data[0] = startByte;
+              data[1] = addressByte;
+              data[2] = packetSize1;
+              data[3] = packetSize2;
 
-            for (uint16_t i = 4; i < packetSize; i++) {
-              data[i] = btSerial -> read();
-            }
+              for (uint16_t i = 4; i < packetSize + 4; i++) {
+                data[i] = btSerial -> read();
+              }
 
-            DBG(F("received raw data: "));
+              OVC3860::decodeReceivedDataArray(data);
 
-            if (DEBUG) {
-              for (uint16_t i = 0; i < packetSize; i++) {
-                DBG(String(data[i], HEX));
+            } else {
+              //wanna read more then 64bytes:
+              uint16_t start_addr = (((startByte & 0x0F) << 8) | (addressByte & 0xff));
+              while (btSerial -> available()) {
+                btSerial -> read(); //read what we have in buffer, then request data in 64Bytes blokcs:
+              }
+              uint8_t Data[4];
+              uint8_t data[64];
+              for ( uint16_t i = 0 ; i < (packetSize + start_addr) ; i = i + 64 ) {
+                Data[0] = ((start_addr + i) >> 8) | 0x10;
+                Data[1] = (start_addr + i) & 0xFF;
+                Data[2] = 0;
+                Data[3] = 64;
+                sendRawData(4, Data);
+                delay(100);
+                uint8_t data_i =0;
+                while (btSerial -> available()) {
+                  data[data_i++] = btSerial -> read();
+                }
+                OVC3860::decodeReceivedDataArray(data);
               }
             }
-            DBG(F("\n"));
-
-            OVC3860::decodeReceivedDataArray(data);
           }
           break;
         case 0x4: //response to write, send only 4bytes,
