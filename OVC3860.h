@@ -7,7 +7,7 @@
 
 	supports SW and HW serial
 
-	to enable SW serial set USE_SW_SERIAL to 1
+	to enable SW serial uncomen USE_SW_SERIAL
 	to enable debug output set DEBUG to 1, this is using HW Serial (hardcoded)
 
   based on 2 pdfs:
@@ -26,7 +26,7 @@
 #define OVC3860_h
 #include <Arduino.h>
 
-#define USE_SW_SERIAL 1
+#define USE_SW_SERIAL
 
 #define DEBUG 1
 
@@ -204,8 +204,9 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
 #else
     OVC3860(NewSoftSerial  *ser, uint8_t resetPin);
 #endif
-#endif
+#else
     OVC3860(HardwareSerial *ser, uint8_t resetPin);
+#endif
     void begin(uint32_t baudrate = 115200);
     ~OVC3860();
 
