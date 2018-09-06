@@ -1657,7 +1657,7 @@ uint8_t OVC3860::changeLocalName(String name) {
   AT#MN1234 :the new pin is :1234
   AT#MN :indication will be MP<current pin>
 */
-uint8_t OVC3860:: q(String pin) {
+uint8_t OVC3860::changePin(String pin) {
   OVC3860::getNextEventFromBT();
   OVC3860::sendData(OVC3860_CHANGE_PIN + pin);
   if (!OVC3860::getNextEventFromBT()) {
