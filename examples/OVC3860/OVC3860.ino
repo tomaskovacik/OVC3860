@@ -26,6 +26,7 @@ SoftwareSerial swSerial(7, 6); //rxPin, txPin, inverse_logic
 
 OVC3860 BT(&swSerial, 5);
 //for boards with 2 UARTs
+//DO NOT FORGET TO COMMENT OUT #define USE_SW_SERIAL if you are unis HW serial
 //OVC3860 BT(&Serial1, 5);
 
 void printAudio();

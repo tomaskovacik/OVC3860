@@ -26,9 +26,9 @@
 #define OVC3860_h
 #include <Arduino.h>
 
-//#define USE_SW_SERIAL
+#define USE_SW_SERIAL
 
-#define DEBUG 0
+#define DEBUG 1
 
 #define USE_PSKCONFIG
 
@@ -208,7 +208,6 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint16_t AutoConnect=Off;
     
     uint8_t volume;
-    uint8_t btMode;  
 
     String CallerID;
     uint8_t BT_ADDR[6];

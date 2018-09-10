@@ -397,7 +397,6 @@ uint8_t OVC3860::sendRawData(uint8_t _size, uint8_t _data[]) {
     DBG(String(_data[i], HEX));
   }
   DBG(F("\n"));
-  delay(100);
 #endif
 }
 
