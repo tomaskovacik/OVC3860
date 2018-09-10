@@ -8,7 +8,7 @@
 
 
 #include "OVC3860.h"
-//#include <SoftwareSerial.h>
+#include <SoftwareSerial.h>
 
 uint16_t BTState;
 uint16_t AVRCPState;
@@ -22,10 +22,11 @@ uint16_t AutoConnect;
 uint16_t AutoAnswer;
 uint8_t volume;
 
-//SoftwareSerial swSerial(7, 6); //rxPin, txPin, inverse_logic
+SoftwareSerial swSerial(7, 6); //rxPin, txPin, inverse_logic
 
-//OVC3860 BT(&swSerial, 5);
-OVC3860 BT(&Serial1, 5);
+OVC3860 BT(&swSerial, 5);
+//for boards with 2 UARTs
+//OVC3860 BT(&Serial1, 5);
 
 void printAudio();
 void printBTState();
