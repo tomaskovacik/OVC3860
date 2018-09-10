@@ -82,6 +82,9 @@ writeBaudRate	KEYWORD2
 resetModule	KEYWORD2
 readClassOfDevice	KEYWORD2
 writeClassOfDevice	KEYWORD2
+readBTAddress	KEYWORD2
+writeSysBTMode	KEYWORD2
+readSysBTMode	KEYWORD2
 
 BTState	LITERAL1
 HFPState	LITERAL1

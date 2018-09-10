@@ -26,7 +26,7 @@
 #define OVC3860_h
 #include <Arduino.h>
 
-#define USE_SW_SERIAL
+//#define USE_SW_SERIAL
 
 #define DEBUG 0
 
@@ -114,6 +114,19 @@
 #define OVC3860_BAUDRATE_460800 0x0A
 #define OVC3860_BAUDRATE_921600 0x0B
 
+#define OVC3860_PSKEY_ADDR_NAME 0x01c7
+#define OVC3860_PSKEY_ADDR_PIN 0x01BF
+#define OVC3860_PSKEY_ADDR_LOCAL_BTADDR 0x0018
+#define OVC3860_PSKEY_ADDR_BTSYS_MODE 0x0007
+#define OVC3860_PSKEY_ADDR_UART_BAUDRATE 0x0011
+#define OVC3860_PSKEY_ADDR_CLASSOFDEVICE 0x0036
+
+#define OVC3860_PSKEY_READ 0x1000
+#define OVC3860_PSKEY_READ_RESPONCE 0x2000
+#define OVC3860_PSKEY_WRITE 0x3000
+#define OVC3860_PSKEY_WRITE_RESPONCE 0x4000
+#define OVC3860_PSKEY_QUIT 0x5000
+
 #if defined(USE_SW_SERIAL)
 #if ARDUINO >= 100
 #include <SoftwareSerial.h>
@@ -193,10 +206,12 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint16_t Audio;
     uint16_t AutoAnswer=Off;
     uint16_t AutoConnect=Off;
+    
     uint8_t volume;
+    uint8_t btMode;  
 
     String CallerID;
-    String BT_ADDR;
+    uint8_t BT_ADDR[6];
     String BT_NAME;
     String BT_PIN;
 
@@ -292,9 +307,11 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t writePin(String NewPin);
     uint8_t readBaudRate();
     uint8_t writeBaudRate(uint8_t NewBaudRate = OVC3860_BAUDRATE_115200);
-    uint8_t readMode();
+    uint8_t readSysBTMode();
+    uint8_t writeSysBTMode(uint8_t mode);
     uint8_t readClassOfDevice();
     uint8_t writeClassOfDevice();
+    uint8_t readBTAddress();
     void resetModule();
 
   private:
@@ -302,7 +319,6 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t _reset;
     uint8_t decodeReceivedString(String receivedString);
     uint8_t decodeReceivedDataArray(uint8_t data[]);
-    String returnBtModuleName(String receivedString);
     void DBG(String text);
     void resetHigh();
     void resetLow();

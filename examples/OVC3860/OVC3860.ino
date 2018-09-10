@@ -8,7 +8,7 @@
 
 
 #include "OVC3860.h"
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 
 uint16_t BTState;
 uint16_t AVRCPState;
@@ -22,9 +22,10 @@ uint16_t AutoConnect;
 uint16_t AutoAnswer;
 uint8_t volume;
 
-SoftwareSerial swSerial(7, 6); //rxPin, txPin, inverse_logic
+//SoftwareSerial swSerial(7, 6); //rxPin, txPin, inverse_logic
 
-OVC3860 BT(&swSerial, 5);
+//OVC3860 BT(&swSerial, 5);
+OVC3860 BT(&Serial1, 5);
 
 void printAudio();
 void printBTState();
@@ -38,6 +39,9 @@ void printA2DPState();
 void printHFPState();
 void getInitStates();
 void printHelp();
+void printModuleName();
+void printModulePIN();
+void printModuleAddress();
 
 void setup() {
   BT.begin();
@@ -169,6 +173,7 @@ void loop() {
               str += c;
             }
             BT.changeLocalName(str);
+            printModuleName();
           }
           break;
         case 'w':
@@ -181,6 +186,7 @@ void loop() {
               str += c;
             }
             BT.changePin(str);
+            printModulePIN();
           }
           break;
         case 'x':
@@ -323,6 +329,10 @@ void loop() {
     {
       char c = Serial.read();
       switch (c) {
+        case 'a':
+          BT.readBTAddress();
+          printModuleAddress();
+          break;
         case 'h':
           printHelp();
           break;
@@ -334,6 +344,7 @@ void loop() {
           break;
         case 'n':
           BT.readName();
+          printModuleName();
           break;
         case 'N':
           {
@@ -345,6 +356,8 @@ void loop() {
               str += c;
             }
             BT.writeName(str);
+            BT.readName();
+            printModuleName();
           }
           break;
         case 'A':
@@ -352,6 +365,7 @@ void loop() {
           break;
         case 'p':
           BT.readPin();
+          printModulePIN();
           break;
         case 'P':
           {
@@ -363,6 +377,8 @@ void loop() {
               str += c;
             }
             BT.writePin(str);
+            BT.readPin();
+            printModulePIN();
           }
           break;
         case 'q':
@@ -416,7 +432,28 @@ void loop() {
           }
           break;
         case 'm':
-          BT.readMode();
+          BT.readSysBTMode();
+          break;
+        case 'M':
+          delay(100);
+          switch (Serial.read()) {
+            case '0'://HCI UART
+              BT.writeSysBTMode(0);
+              break;
+            case '3'://HEADSET
+              BT.writeSysBTMode(3);
+              break;
+            case '4'://CARKIT
+              BT.writeSysBTMode(4);
+              break;
+            case '6'://AVSink
+              BT.writeSysBTMode(6);
+              break;
+            case '9'://Mobile
+              BT.writeSysBTMode(9);
+              break;
+          }
+          BT.readSysBTMode();
           break;
       }
     }
@@ -737,6 +774,7 @@ void printHelp() {
     Serial.println(F("Enter config mode            ."));
     Serial.println(F("Resetin module(HW way)       ,"));
   } else {
+    Serial.println(F("read module address     a"));
     Serial.println(F("read name               n"));
     Serial.println(F("write name              N"));
     Serial.println(F("read pin                p"));
@@ -744,20 +782,45 @@ void printHelp() {
     Serial.println(F("quit config mode        q"));
     Serial.println(F("read baudrate           b"));
     Serial.println(F("setBaudrate:"));
-    Serial.println(F("         use B0 for 1200b"));
-    Serial.println(F("         use B1 for 2400b"));
-    Serial.println(F("         use B2 for 4800b"));
-    Serial.println(F("         use B3 for 9600b"));
-    Serial.println(F("        use B4 for 14400b"));
-    Serial.println(F("        use B5 for 19200b"));
-    Serial.println(F("        use B6 for 38400b"));
-    Serial.println(F("        use B7 for 57600b"));
+    Serial.println(F("       use B0 for 1200b"));
+    Serial.println(F("       use B1 for 2400b"));
+    Serial.println(F("       use B2 for 4800b"));
+    Serial.println(F("       use B3 for 9600b"));
+    Serial.println(F("       use B4 for 14400b"));
+    Serial.println(F("       use B5 for 19200b"));
+    Serial.println(F("       use B6 for 38400b"));
+    Serial.println(F("       use B7 for 57600b"));
     Serial.println(F("       use B8 for 115200b"));
     Serial.println(F("       use B9 for 230400b"));
     Serial.println(F("       use BA for 460800b"));
     Serial.println(F("       use BB for 921600b"));
     Serial.println(F("read mode               m"));
+    Serial.println(F("write mode:"));
+    Serial.println(F("            M0 - HCI UART"));
+    Serial.println(F("            M3 - HEADSET"));
+    Serial.println(F("            M4 - CARKIT"));
+    Serial.println(F("            M6 - AVSNK"));
+    Serial.println(F("            M9 - MOBILE"));
     Serial.println(F("read class of device    c"));
     Serial.println(F("write class of device   C"));
   }
 }
+
+
+void printModuleName() {
+  Serial.print("Module name: "); Serial.println(BT.BT_NAME);
+}
+
+void printModulePIN() {
+  Serial.print("Module PIN: "); Serial.println(BT.BT_PIN);
+}
+
+void printModuleAddress() {
+  Serial.print("Module address: ");
+  for (uint8_t i = 0; i < 6; i++) {
+    Serial.print(BT.BT_ADDR[i], HEX);
+    if (i < 5) Serial.print(":");
+  }
+  Serial.println();
+}
+

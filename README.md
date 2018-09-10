@@ -196,4 +196,16 @@ readBaudRate(); //read baudrate of module in configuration mode - did not work f
 
 writeBaudRate(uint8_t NewBaudRate = OVC3860_BAUDRATE_115200); //write baudrate of module in configuration mode - did not work for me right now, also using pskey config app did not work for this.
 
+readSysBTMode(); //read bluetooth mode 
+
+writeSysBTMode(uint8_t mode); //write bluetooth mode, 00-UART,03-HEADSET,04-CARKIT,06-AVSINK,09-MOBILE
+
+readClassOfDevice(); // read class of device
+
+writeClassOfDevice(); // write class of device
+
+readBTAddress(); //read bluetooth address of module
+
 resetModule();//reset module HW way = puting reset pin low and then high
+
+
