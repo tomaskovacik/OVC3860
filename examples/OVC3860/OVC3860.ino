@@ -6,7 +6,7 @@
 	example for F-6188 module library
 */
 
-
+#define USE_SW_SERIAL
 #include "OVC3860.h"
 #include <SoftwareSerial.h>
 
@@ -47,8 +47,8 @@ void printModuleAddress();
 
 void setup() {
   BT.begin();
-  Serial.begin(115200);
-  Serial.println(F("press h for help"));
+  Serial3.begin(115200);
+  Serial3.println(F("press h for help"));
   getInitStates();
   printHelp();
 }
@@ -745,8 +745,8 @@ void printHelp() {
     Serial.println(F("Music: start rewind          B"));
     Serial.println(F("Music: stop ff/rwd           C"));
     Serial.println(F("Query A2DP Status            D"));
-    Serial.println(F("Write to memor  E+addr(4B)_hex"));
-    Serial.println(F("Read from memory    F+addr(4B)"));
+    Serial.println(F("Write to memory E+addr(4 bytes in hex)"));
+    Serial.println(F("Read from memory    F+addr(4 bytes in hex)"));
     Serial.println(F("Switch devices               G"));
     Serial.println(F("Query Version                H"));
     Serial.println(F("Sync phonebook by sim        I"));
