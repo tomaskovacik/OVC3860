@@ -40,7 +40,7 @@ begin(uint32_t baudrate = 115200); //parameter baudrate is communication speed b
 
 sendData(String cmd); //construct string of AT+cmd and send it to serial port
 
-getNextEventFromBT(); //parse data send from module and send internal variales, call this periodicaly, to parse data received from module ASAP
+getNextEventFromBT(); //parse data send from module and set internal variales, call this periodicaly, to parse data received from module ASAP
 
 sendRawData(uint8_t _size, uint8_t data[]); //send data[] to serial port
 
@@ -52,47 +52,48 @@ connectHSHF(); //conect to handsfreedevice
 
 disconnectHSHF(); //disconnect handsfree, but it leave A2DP connected
 
-callAnswer();
+callAnswer(); //accept incomming call
 
-callReject();
+callReject(); //reject incomming call
 
-callHangUp();
+callHangUp(); //hang up call
 
-callRedial();
+callRedial(); //Redial the last outgoing call
 
-voiceDialStart(); 
+voiceDialStart(); //Voice dialing
 
-voiceDialEnd();
+voiceDialEnd(); //cancel the voice dialing
 
-micToggle();
+micToggle(); //Mute/Unmute MIC
 
-transferAudio();
+transferAudio(); //Transfer audio between HSHF and phone speaker
 
-callReleaseReject();
+callReleaseReject(); //causes the module to release held call, and reject waiting call.
 
-callReleaseAccept();
+callReleaseAccept(); //causes the module to release active call, accept other call.
 
-callHoldAccept();
+callHoldAccept(); //causes the module to hold active call, accept other call.
 
-callConference();
+callConference(); //causes the module to make a conference call
 
-pairingDeleteThenInit();
+pairingDeleteThenInit(); //delete current pairing and then initialize pairing mode
 
-callDialNumber(String number);
+callDialNumber(String number); //causes the module to dial number
 
-sendDTMF();
+sendDTMF(char c); //causes the module to send one DTMF characeter c, supported: 0-9, #, *, A-D
 
-queryHFPStatus();
+queryHFPStatus(); //queries the module’s HFP current status
 
 reset(); //software reset module
 
-musicTogglePlayPause();
+musicTogglePlayPause(); //If the module is connected with a AV Source, this command causes the AV source to play/pause music. If module isn’t connected AV source, this command will cause module try to connected
+  current connected mobile’s AV source.
 
-musicStop();
+musicStop(); //If the module is connected with a AV Source, this command causes the AV Source to Stop Music.
 
-musicNextTrack();
+musicNextTrack(); //If the module is connected with a AV Source, this command causes the AV Source to Play next song.
 
-musicPreviousTrack();
+musicPreviousTrack(); //If the module is connected with a AV Source, this command causes the AV Source to play last song.
 
 queryConfiguration(); //query audo connect and auto answare configuration
 
@@ -108,59 +109,59 @@ changeLocalName(String name = ""); //without parameter module should return actu
 
 changePin(String pin = ""); //without parameter module should return actual pin, did not work for me
 
-queryAvrcpStatus(); 
+queryAvrcpStatus();  //queries the module’s AVRCP current status
 
 autoAnswerEnable(); //configure auto answer call feature to be enabled 
 
 autoAnswerDisable(); //configure auto answer call feature to be disabled 
 
-musicStartFF();
+musicStartFF(); //If the module is connected with a AV Source, this command causes the AV Source to start fast forward.
 
-musicStartRWD();
+musicStartRWD(); //If the module is connected with a AV Source, this command causes the AV Source to start rewind.
 
-musicStopFFRWD();
+musicStopFFRWD(); //If the module is connected with a AV Source, this command causes the AV Source to stop fast forward or rewind.
 
-queryA2DPStatus(); 
+queryA2DPStatus(); //queries the module’s A2DP current status
 
-writeToMemory(String data);
+writeToMemory(String data); //This command causes the module to write a byte into a given memory address.
 
-readFromMemory(String addr);
+readFromMemory(String addr); //This command causes the module to read a byte from a given memory address.
 
-switchDevices();
+switchDevices(); //causes the module to switch two remote devices
 
-queryVersion();
+queryVersion(); //queries the module’s software version
 
-pbSyncBySim();
+pbSyncBySim(); //causes the module to synchronize the phonebook which is stored by SIM
 
-pbSyncByPhone();
+pbSyncByPhone(); //causes the module to synchronize the phonebook which is stored by phone
 
-pbReadNextItem();
+pbReadNextItem(); //causes the module to read next one phonebook item from phone or local
 
-pbReadPreviousItem();
+pbReadPreviousItem(); //causes the module to read previous one phonebook item from phone or local
 
-pbSyncByDialer();
+pbSyncByDialer(); //causes the module to synchronize the dialed calls list
 
-pbSyncByReceiver();
+pbSyncByReceiver(); //causes the module to synchronize the received calls list
 
-pbSyncByMissed();
+pbSyncByMissed(); causes the module to synchronize the missed calls list
 
-pbSyncByLastCall();
+pbSyncByLastCall(); //causes the module to synchronize the last call list
 
-getLocalLastDialedList();
+getLocalLastDialedList(); //causes the module to read one of recently dialed call number(record by module)
 
-getLocalLastReceivedList();
+getLocalLastReceivedList(); //causes the module to read one of recently received call number(record by module)
 
-getLocalLastMissedList();
+getLocalLastMissedList(); //causes the module to read one of recently missed call number(record by module)
 
-dialLastReceivedCall();
+dialLastReceivedCall(); //causes the module to dial last received phone number
 
-clearLocalCallHistory();
+clearLocalCallHistory(); //causes the module to clear call history(record by module)
 
-sppDataTransmit();
+sppDataTransmit(); //send SPP data to the remote device
 
-setClockdebugMode();
+setClockdebugMode(); //causes the module to enter clock debug mode
 
-volumeDown();
+volumeDown(); //causes the module to decrease the speaker volume
 
 enterTestMode(); //not usefull for normal user
 
@@ -170,11 +171,11 @@ emcTestMode(); //not usefull for normal user
 
 setRFRegister(); //not usefull for normal user
 
-inquiryStart(); 
+inquiryStart(); //causes the module to inquiry Bluetooth devices
 
-inquiryStop(); 
+inquiryStop();  //causes the module to cancel inquiry Bluetooth devices
 
-volumeUp(); 
+volumeUp(); //causes the module to increase the speaker volume
 
 shutdown(); //shutdown module, need to be power cycled to start again, HW reset did not work
 
