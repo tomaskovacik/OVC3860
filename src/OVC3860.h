@@ -28,7 +28,7 @@
 
 #define USE_SW_SERIAL
 
-#define DEBUG 1
+//#define DEBUG
 
 #define USE_PSKCONFIG
 
@@ -248,7 +248,7 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t callConference();
     uint8_t pairingDeleteThenInit();
     uint8_t callDialNumber(String number);
-    uint8_t sendDTMF();
+    uint8_t sendDTMF(char c);
     uint8_t queryHFPStatus();
     uint8_t reset();
     uint8_t musicTogglePlayPause();

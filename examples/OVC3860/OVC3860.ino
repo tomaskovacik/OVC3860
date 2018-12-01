@@ -128,7 +128,10 @@ void loop() {
           }
           break;
         case 'j':
-          BT.sendDTMF();
+	{
+	delay(100);
+          BT.sendDTMF(Serial.read());
+	}
           break;
         case 'k':
           BT.queryHFPStatus();

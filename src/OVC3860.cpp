@@ -63,7 +63,9 @@ void OVC3860::resetHigh() {
 }
 
 void OVC3860::resetModule() {
+#if defined DEBUG 
   DBG(F("reseting module\n"));
+#endif
   resetLow();
   delay(100);
   resetHigh();
@@ -73,7 +75,9 @@ void OVC3860::resetModule() {
    debug output
 */
 void OVC3860::DBG(String text) {
-  if (DEBUG) /*return "DBG: ");*/ Serial.print(text);
+#if defined DEBUG
+	Serial.print(text);
+#endif
 }
 
 /*
@@ -114,8 +118,10 @@ void OVC3860::DBG(String text) {
 
 */
 uint8_t OVC3860::decodeReceivedString(String receivedString) {
+#if defined DEBUG 
   DBG(receivedString);
   DBG(F("\n"));
+#endif
   //while (receivedString[0] == 0x20) {receivedString = receivedString.substring(0);};
   if (memcmp(&receivedString[0], "AX_PA", 5) == 0) {
   } else if (memcmp(&receivedString[0], "AA1", 3) == 0) { //The audio sample rating is set 48000
@@ -146,7 +152,9 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
     PowerState = On;
     return 0;
   } else if (memcmp(&receivedString[0], "II", 2) == 0) { //HSHF enters pairing state indication
+#if defined DEBUG 
     DBG(F("II\n"));
+#endif
     PowerState = On;
     BTState = Discoverable;
     OVC3860::queryA2DPStatus();
@@ -285,7 +293,9 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
   } else if (memcmp(&receivedString[0], "MN", 2) == 0) { //pin
     PowerState = On;
   } else if (memcmp(&receivedString[0], "MP", 2) == 0) { //Music Pause
+#if defined DEBUG 
     DBG(F("MP"));
+#endif
     PowerState = On;
     MusicState = Idle;
     OVC3860::queryA2DPStatus();
@@ -366,11 +376,15 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
   } else if (memcmp(&receivedString[0], "SC", 2) == 0) { //SPP opened
     PowerState = On;
     BTState = SPPopened;
+#if defined DEBUG 
     DBG(F("SPP opened\n"));
+#endif
   } else if (memcmp(&receivedString[0], "SD", 2) == 0) { //SPP closed
     PowerState = On;
     BTState = SPPclosed;
+#if defined DEBUG 
     DBG(F("SPP closed\n"));
+#endif
   } else if (memcmp(&receivedString[0], "SW", 2) == 0) { //Command Accepted
     PowerState = On;
   } else if (memcmp(&receivedString[0], "VOL", 3) == 0) { //Command Accepted
@@ -379,9 +393,11 @@ uint8_t OVC3860::decodeReceivedString(String receivedString) {
   } else if (receivedString[0] == 0xA) {
   } else if (receivedString[0] == 0xD) {
   } else {
+#if defined DEBUG 
     DBG(F("Received unknown string:"));
     DBG(receivedString);
     DBG(F("\n"));
+#endif
   }
   return 1;
 }
@@ -392,11 +408,17 @@ uint8_t OVC3860::sendRawData(uint8_t _size, uint8_t _data[]) {
     btSerial -> write(_data[i]);
   }
 
+#if defined DEBUG 
   DBG(F("sending raw data: "));
+#endif
   for (uint8_t i = 0; i < _size; i++ ) {
+#if defined DEBUG 
     DBG(String(_data[i], HEX));
+#endif
   }
+#if defined DEBUG 
   DBG(F("\n"));
+#endif
 #endif
 }
 
@@ -405,7 +427,9 @@ uint8_t OVC3860::quitConfigMode() { //responce: 0x60,0x00,0x00,0x00
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Quiting config mode\n"));
+#endif
     // OVC3860::ResetModule();
     uint8_t Data[4] = {0x50, 0x00, 0x00, 0x00};
     sendRawData(4, Data);
@@ -439,7 +463,9 @@ uint8_t OVC3860::enterConfigMode() {
     while ((btSerial -> available()) != 7) {} //wait for 7bytes
 
     if (btSerial -> read() == 0x04 && btSerial -> read() == 0x0F && btSerial -> read() == 0x04 && btSerial -> read() == 0x01 && btSerial -> read() == 0x01 && btSerial -> read() == 0x00 && btSerial -> read() == 0x00) {
+#if defined DEBUG 
       DBG(F("Config mode!\n"));
+#endif
       BTState = ConfigMode;
     }
     else
@@ -455,7 +481,9 @@ uint8_t OVC3860::readName() {
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Reading name\n"));
+#endif
     uint8_t Data[4] = {0x11, 0xc7, 0x00, 0x10};
     sendRawData(4, Data);
   }
@@ -468,7 +496,9 @@ uint8_t OVC3860::readBTAddress() {
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Reading name\n"));
+#endif
     uint8_t Data[4] = {0x10, 0x18, 0x00, 0x6};
     sendRawData(4, Data);
   }
@@ -481,7 +511,9 @@ uint8_t OVC3860::readSysBTMode() {
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Reading mode \n"));
+#endif
     uint8_t Data[4] = {0x10, 0x07, 0x00, 0x01};
     sendRawData(4, Data);
   }
@@ -507,12 +539,16 @@ uint8_t OVC3860::writeName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
     return false;
   } else {
     if (NewName.length() - 2 > 16) { //count for termination char
+#if defined DEBUG 
       DBG(F("name to long, max 16chars\n"));
+#endif
       return false;
     } else {
+#if defined DEBUG 
       DBG(F("Writing name:"));
       DBG(NewName);
       DBG(F("\n"));
+#endif
       uint8_t Data[20] = {0x31, 0xc7, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
       for (uint8_t i = 0; i < NewName.length() - 2; i++) {
         Data[i + 4] = NewName[i];
@@ -530,7 +566,9 @@ uint8_t OVC3860::readClassOfDevice() {
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Reading class of device:\n"));
+#endif
     uint8_t Data[4] = {0x10, 36, 0x00, 0x03};
     sendRawData(4, Data);
   }
@@ -543,7 +581,9 @@ uint8_t OVC3860::writeClassOfDevice() {
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Writing class of device: 0x24 0x04 0x14\n"));
+#endif
     uint8_t Data[7] = {0x30, 36, 0x00, 0x03, 0x14, 0x04, 0x24};
     sendRawData(7, Data);
   }
@@ -557,7 +597,9 @@ uint8_t OVC3860::readAllPSK() {
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Reading All PSK\n"));
+#endif
     uint8_t Data[4] = {0x10, 0x00, 0x03, 0x3D};
     sendRawData(4, Data);
   }
@@ -571,7 +613,9 @@ uint8_t OVC3860::readPin() {
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Reading Pin\n"));
+#endif
     uint8_t Data[4] = {0x11, 0xBF, 0x00, 0x08};
     sendRawData(4, Data);
   }
@@ -586,12 +630,16 @@ uint8_t OVC3860::writePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
     return false;
   } else {
     if (NewPin.length() - 2 > 8) { //count for termination char
+#if defined DEBUG 
       DBG(F("name to long, max 8 chars"));
+#endif
       return false;
     } else {
+#if defined DEBUG 
       DBG(F("Writing pin: "));
       DBG(NewPin);
       DBG(F("\n"));
+#endif
       uint8_t Data[12] = {0x31, 0xBF, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
       for (uint8_t i = 0; i < NewPin.length() - 2; i++) {
         Data[i + 4] = NewPin[i];
@@ -609,7 +657,9 @@ uint8_t OVC3860::readBaudRate() {
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Reading baudrate\n"));
+#endif
     uint8_t Data[4] = {0x10, 0x11, 0x00, 0x01};
     sendRawData(4, Data);
   }
@@ -622,7 +672,9 @@ uint8_t OVC3860::writeBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00
   if (BTState != ConfigMode) {
     return false;
   } else {
+#if defined DEBUG 
     DBG(F("Writing baudrate\n"));
+#endif
     uint8_t Data[5] = {0x30, 0x11, 0x00, 0x01, NewBaudRate};
     sendRawData(5, Data);
   }
@@ -655,28 +707,38 @@ uint8_t OVC3860::decodeReceivedDataArray(uint8_t data[]) {
 
   if ( addressFull == OVC3860_PSKEY_ADDR_LOCAL_BTADDR ) {
     //decode address:
+#if defined DEBUG 
     DBG(F("address: "));
+#endif
     for (uint16_t i = 4; i < packetSize; i++) {
       if (data[i] == 0) break;
+#if defined DEBUG 
       DBG(String(data[i], HEX));
       DBG(F(":"));
+#endif
       BT_ADDR[i - 4] = (uint8_t)data[i];
     }
+#if defined DEBUG 
     DBG(F("\n"));
+#endif
   }
 
   if ( addressFull == (OVC3860_PSKEY_READ_RESPONCE | OVC3860_PSKEY_ADDR_BTSYS_MODE)) {
     //decode bt mode:
+#if defined DEBUG 
     DBG(F("BT Mode: "));
     DBG(String(data[5], HEX));
     DBG(F("\n"));
+#endif
   }
 
   for (uint16_t i = 0; i < packetSize; i++) {
+#if defined DEBUG 
     DBG(String(data[i], HEX));
     DBG(F(" "));
     DBG(String(data[i]));
     DBG(F("\n"));
+#endif
   }
 
 #endif
@@ -747,6 +809,7 @@ uint8_t OVC3860::getNextEventFromBT() {
             uint8_t packetSize1 = btSerial -> read();
             uint8_t packetSize2 = btSerial -> read();
 
+#if defined DEBUG 
             DBG(F("received raw data: "));
 
             DBG(String(startByte, HEX));
@@ -754,6 +817,7 @@ uint8_t OVC3860::getNextEventFromBT() {
             DBG(String(packetSize1, HEX));
             DBG(String(packetSize2, HEX));
             DBG(F("\n"));
+#endif
           }
           break;
         default:
@@ -793,9 +857,11 @@ uint8_t OVC3860::getNextEventFromBT() {
 
 uint8_t OVC3860::sendData(String cmd) {
   String Command = "AT#" + cmd + "\r\n";
+#if defined DEBUG 
   DBG(F("sending "));
   DBG(Command);
   DBG(F("\n"));
+#endif
   delay(100);
   btSerial -> print(Command);
 }
@@ -1331,7 +1397,7 @@ uint8_t OVC3860::callDialNumber(String number) {
   AT#CX1
   return:
   OK // send DTMF successfully indication
-  NOTE: sopported sending characters (0-9, #, *, A-D).
+  NOTE: supported sending characters (0-9, #, *, A-D).
 
   Send DTMF #CX
 
@@ -1352,9 +1418,34 @@ uint8_t OVC3860::callDialNumber(String number) {
   AT#CX5
 
 */
-uint8_t OVC3860::sendDTMF() {
-  OVC3860::sendData(OVC3860_SEND_DTMF);
+uint8_t OVC3860::sendDTMF(char c) {
+  switch (c)
+{
+case '0':
+case '1':
+case '2':
+case '3':
+case '4':
+case '5':
+case '6':
+case '7':
+case '8':
+case '9':
+case '#':
+case '*':
+case 'A':
+case 'B':
+case 'C':
+case 'D':
+  OVC3860::sendData(OVC3860_SEND_DTMF+String(c));
   OVC3860::getNextEventFromBT();
+break;
+default:
+#if defined DEBUG
+	DBG(F("Unsupported characeter, supported: 0-9, #, *, A-D"));
+#endif
+return false;
+}
 }
 
 /*
