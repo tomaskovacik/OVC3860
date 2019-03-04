@@ -4,6 +4,41 @@ This directory contain all files needed to support A2DP bluetooth module based o
 
 OVC3860 have AT command control support, supported commands are descriped <a href="https://github.com/tomaskovacik/kicad-library/blob/master/library/datasheet/OVC3860_based_modules/BLK-MD-SPK-B_AT_Command_set_original.pdf">here</a> and <a href="https://github.com/tomaskovacik/kicad-library/blob/master/library/datasheet/OVC3860_based_modules/OVC3860_AT_Command_Application_Notes.pdf">here</a> (some did not work on my modules...).
 
+# how to connect module
+
+## directly to computer
+
+this is for testing if your module has serial interface enabled:
+
+OVC3860|computer(USB2serial for example)
+-------|-------
+   RX  |  TX
+   TX  |  RX
+  GND  |  GND
+ VBAT  |  via diode to 5V
+
+## arduino using software serial (UNO, nano..)
+
+OVC3860|computer (USB2serial for example)
+-------|-------
+   RX  |  7 (1st parameter of SoftwareSerial in example)
+   TX  |  6 (2nd parameter of SoftwareSerial in example)
+ RESET |  5 (defined as resetBTpin in example)
+  GND  |  GND
+ VBAT  |  via diode to 5V
+
+
+## arduino using harware serial (mega ..)
+
+OVC3860|computer(USB2serial for example)
+-------|-------
+   RX  |  TX1 (if using Serial1)
+   TX  |  RX1 (if using Serial1)
+ RESET |  5 (defined as resetBTpin in example)
+  GND  |  GND
+ VBAT  |  via diode to 5V
+
+
 # how to use it
 
 <a href="https://www.arduino.cc/en/Guide/Libraries">Information about using libraries on arduino site</a>
@@ -40,4 +75,4 @@ Do not forget: getNextEventFromBT function must be called periodicaly, it's run 
 
 # how shoud main code act based on module state
 
-library set variables which can be check, compared etc and based on these main code should react, here is a <a href="">page on wiki talking about it</a>.
+library set variables which can be checked, compared etc, and based on these main code should react, here is a <a href="https://github.com/tomaskovacik/OVC3860/wiki/variables-changing-based-on-module-state">page on wiki talking about it</a>.
