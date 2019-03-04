@@ -4,6 +4,8 @@ This directory contain all files needed to support A2DP bluetooth module based o
 
 OVC3860 have AT command control support, supported commands are descriped <a href="https://github.com/tomaskovacik/kicad-library/blob/master/library/datasheet/OVC3860_based_modules/BLK-MD-SPK-B_AT_Command_set_original.pdf">here</a> and <a href="https://github.com/tomaskovacik/kicad-library/blob/master/library/datasheet/OVC3860_based_modules/OVC3860_AT_Command_Application_Notes.pdf">here</a> (some did not work on my modules...).
 
+All documents I have regarding modules based on OVC3860 chips are in this repository: <a href="https://github.com/tomaskovacik/kicad-library/tree/master/library/datasheet/OVC3860_based_modules">here</a>, please check it out before asking question, if answare is not there it's more than likly that I do not know it also.
+
 # how to connect module
 
 ## directly to computer
