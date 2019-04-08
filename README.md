@@ -1,4 +1,4 @@
-# arduino library for OC3860 based modules
+# Arduino library for OVC3860 based modules
 
 This directory contain all files needed to support A2DP bluetooth module based on OmniVision chip OVC3860.
 
