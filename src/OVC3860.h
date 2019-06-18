@@ -28,7 +28,7 @@
 
 #define USE_SW_SERIAL
 
-//#define DEBUG
+#define DEBUG
 
 #define USE_PSKCONFIG
 
@@ -318,7 +318,9 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
     uint8_t _reset;
     uint8_t decodeReceivedString(String receivedString);
     uint8_t decodeReceivedDataArray(uint8_t data[]);
+#if defined DEBUG 
     void DBG(String text);
+#endif
     void resetHigh();
     void resetLow();
 

@@ -48,8 +48,8 @@ void printModuleAddress();
 
 void setup() {
   BT.begin();
-  Serial3.begin(115200);
-  Serial3.println(F("press h for help"));
+  Serial.begin(115200);
+  Serial.println(F("Press h for help"));
   getInitStates();
   printHelp();
 }
@@ -518,7 +518,7 @@ void loop() {
   }
 
   if (volume != BT.volume) {
-    Serial.print("Volume: "); Serial.println(BT.volume);
+    Serial.print(F("Volume: ")); Serial.println(BT.volume);
     volume = BT.volume;
   }
 }
@@ -814,18 +814,18 @@ void printHelp() {
 
 
 void printModuleName() {
-  Serial.print("Module name: "); Serial.println(BT.BT_NAME);
+  Serial.print(F("Module name: ")); Serial.println(BT.BT_NAME);
 }
 
 void printModulePIN() {
-  Serial.print("Module PIN: "); Serial.println(BT.BT_PIN);
+  Serial.print(F("Module PIN: ")); Serial.println(BT.BT_PIN);
 }
 
 void printModuleAddress() {
-  Serial.print("Module address: ");
+  Serial.print(F("Module address: "));
   for (uint8_t i = 0; i < 6; i++) {
     Serial.print(BT.BT_ADDR[i], HEX);
-    if (i < 5) Serial.print(":");
+    if (i < 5) Serial.print(F(":"));
   }
   Serial.println();
 }
