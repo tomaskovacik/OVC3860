@@ -28,7 +28,7 @@
 
 #define USE_SW_SERIAL
 
-#define DEBUG
+//#define DEBUG
 
 #define USE_PSKCONFIG
 
@@ -323,6 +323,7 @@ AVRCP Status Value Description:(ML) => uint8_t AVRCPState
 #endif
     void resetHigh();
     void resetLow();
+    uint8_t checkResponce(void);
 
 
 #if  defined(USE_SW_SERIAL)

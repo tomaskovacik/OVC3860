@@ -495,9 +495,8 @@ uint8_t OVC3860::readName() {
     DBG(F("Reading name\n"));
 #endif
     uint8_t Data[4] = {0x11, 0xc7, 0x00, 0x10};
-    sendRawData(4, Data);
+    return sendRawData(4, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -510,9 +509,8 @@ uint8_t OVC3860::readBTAddress() {
     DBG(F("Reading name\n"));
 #endif
     uint8_t Data[4] = {0x10, 0x18, 0x00, 0x6};
-    sendRawData(4, Data);
+    return sendRawData(4, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -525,9 +523,8 @@ uint8_t OVC3860::readSysBTMode() {
     DBG(F("Reading mode \n"));
 #endif
     uint8_t Data[4] = {0x10, 0x07, 0x00, 0x01};
-    sendRawData(4, Data);
+    return sendRawData(4, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -537,9 +534,8 @@ uint8_t OVC3860::writeSysBTMode(uint8_t mode) {
     return false;
   } else {
     uint8_t Data[5] = {0x30, 0x07, 0x00, 0x01, mode};
-    sendRawData(5, Data);
+    return sendRawData(5, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -563,10 +559,9 @@ uint8_t OVC3860::writeName(String NewName) { //resposce: 0x41,0xc7,0x00,0x10
       for (uint8_t i = 0; i < NewName.length() - 2; i++) {
         Data[i + 4] = NewName[i];
       }
-      sendRawData(20, Data);
+      return sendRawData(20, Data);
     }
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -580,9 +575,8 @@ uint8_t OVC3860::readClassOfDevice() {
     DBG(F("Reading class of device:\n"));
 #endif
     uint8_t Data[4] = {0x10, 36, 0x00, 0x03};
-    sendRawData(4, Data);
+    return sendRawData(4, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -595,9 +589,8 @@ uint8_t OVC3860::writeClassOfDevice() {
     DBG(F("Writing class of device: 0x24 0x04 0x14\n"));
 #endif
     uint8_t Data[7] = {0x30, 36, 0x00, 0x03, 0x14, 0x04, 0x24};
-    sendRawData(7, Data);
+    return sendRawData(7, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -611,9 +604,8 @@ uint8_t OVC3860::readAllPSK() {
     DBG(F("Reading All PSK\n"));
 #endif
     uint8_t Data[4] = {0x10, 0x00, 0x03, 0x3D};
-    sendRawData(4, Data);
+    return sendRawData(4, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -627,9 +619,8 @@ uint8_t OVC3860::readPin() {
     DBG(F("Reading Pin\n"));
 #endif
     uint8_t Data[4] = {0x11, 0xBF, 0x00, 0x08};
-    sendRawData(4, Data);
+    return sendRawData(4, Data);
   }
-  OVC3860::getNextEventFromBT();
 #else
 #endif
 }
@@ -654,10 +645,9 @@ uint8_t OVC3860::writePin(String NewPin) { //resposce: 0x41,0xc7,0x00,0x10
       for (uint8_t i = 0; i < NewPin.length() - 2; i++) {
         Data[i + 4] = NewPin[i];
       }
-      sendRawData(12, Data);
+      return sendRawData(12, Data);
     }
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -671,9 +661,8 @@ uint8_t OVC3860::readBaudRate() {
     DBG(F("Reading baudrate\n"));
 #endif
     uint8_t Data[4] = {0x10, 0x11, 0x00, 0x01};
-    sendRawData(4, Data);
+    return sendRawData(4, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -686,9 +675,8 @@ uint8_t OVC3860::writeBaudRate(uint8_t NewBaudRate) { //resposce: 0x41,0xc7,0x00
     DBG(F("Writing baudrate\n"));
 #endif
     uint8_t Data[5] = {0x30, 0x11, 0x00, 0x01, NewBaudRate};
-    sendRawData(5, Data);
+    return sendRawData(5, Data);
   }
-  OVC3860::getNextEventFromBT();
 #endif
 }
 
@@ -754,6 +742,17 @@ uint8_t OVC3860::decodeReceivedDataArray(uint8_t data[]) {
 #endif
 }
 
+uint8_t OVC3860::checkResponce(void){
+  uint8_t timeout=500;//500ms -- datasheet did not stated any timeout for "OK" responce, so I give him 500ms
+  while (!getNextEventFromBT() && timeout > 0)
+  {
+    timeout--;
+    delay(1); // wait 1milisecond
+  }
+  if (!timeout) return false;
+  return true;
+}
+
 
 uint8_t OVC3860::getNextEventFromBT() {
   delay(200);//delay needed to fillup buffers otherwise this will return false
@@ -786,7 +785,7 @@ uint8_t OVC3860::getNextEventFromBT() {
                 data[i] = btSerial -> read();
               }
 
-              OVC3860::decodeReceivedDataArray(data);
+              return OVC3860::decodeReceivedDataArray(data);
 
             } else {
               //wanna read more then 64bytes:
@@ -807,7 +806,7 @@ uint8_t OVC3860::getNextEventFromBT() {
                 while (btSerial -> available()) {
                   data[data_i++] = btSerial -> read();
                 }
-                OVC3860::decodeReceivedDataArray(data);
+                return OVC3860::decodeReceivedDataArray(data);
               }
             }
           }
@@ -826,6 +825,7 @@ uint8_t OVC3860::getNextEventFromBT() {
             DBG(String(packetSize2, HEX));
             DBG(F("\n"));
 #endif
+	    return 1;
           }
           break;
         default:
@@ -847,7 +847,7 @@ uint8_t OVC3860::getNextEventFromBT() {
  #if defined DEBUG
           DBG(F("received only empty string\n running again myself...\n"));
 #endif
-          return OVC3860::getNextEventFromBT();
+          return OVC3860::checkResponce();
         }
         return decodeReceivedString(receivedString);
       }
@@ -870,7 +870,7 @@ uint8_t OVC3860::sendData(String cmd) {
 #endif
   delay(100);
   btSerial -> print(Command);
-  return OVC3860::getNextEventFromBT();
+  return OVC3860::checkResponce();
 }
 
 /*
@@ -1409,8 +1409,6 @@ case 'B':
 case 'C':
 case 'D':
   return OVC3860::sendData(OVC3860_SEND_DTMF+String(c));
-
-break;
 default:
 #if defined DEBUG
 	DBG(F("Unsupported characeter, supported: 0-9, #, *, A-D"));
