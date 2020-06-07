@@ -77,4 +77,4 @@ Do not forget: getNextEventFromBT function must be called periodicaly, it's run 
 
 # how shoud main code act based on module state
 
-library set variables which can be checked, compared etc, and based on these main code should react, here is a <a href="https://github.com/tomaskovacik/OVC3860/wiki/variables-changing-based-on-module-state">page on wiki talking about it</a>.
+library set variables which can be checked, compared etc, and based on these main code should react, here is a <a href="https://github.com/tomaskovacik/OVC3860/wiki/variables-set-based-on-module-state">page on wiki talking about it</a>.
